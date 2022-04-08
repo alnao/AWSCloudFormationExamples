@@ -1,0 +1,53 @@
+# $ sam validate
+# $ sam build
+# $ sam deploy --stack-name esempio02buckets3sito --capabilities CAPABILITY_IAM
+# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
+# $ aws s3 cp index.html s3://esempio02buckets3sito/
+# $ sam delete --stack-name esempio02buckets3sito
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template for s3 bucket con BucketPolicy
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        # true    #https://github.com/prowler-cloud/prowler/issues/793
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: esempio02buckets3sito
+      MetricsConfigurations:
+        - Id: EntireBucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Retain
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: 'esempio02buckets3sito'
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: AllowSSLRequestsOnly # AWS Foundational Security Best Practices v1.0.0 S3.5
+            Action: 's3:GetObject'
+            Effect: Allow
+            Resource: 
+              - 'arn:aws:s3:::esempio02buckets3sito/*'
+            Principal: '*'
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt
+      - S3Bucket
+      - WebsiteURL
+    Description: URL for website hosted on S3
+  S3BucketSecureURL:
+    Value: !Join
+      - ''
+      - - 'https://'
+        - !GetAtt
+          - S3Bucket
+          - DomainName
+    Description: Name of S3 bucket to hold website content

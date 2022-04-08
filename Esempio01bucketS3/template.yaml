@@ -1,0 +1,38 @@
+# $ sam validate
+# $ sam build
+# $ sam deploy --stack-name esempio1buckets3-8aprile22 --capabilities CAPABILITY_IAM
+# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
+# $ sam delete --stack-name esempio1buckets3-8aprile22
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation s3 bucket
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketName: esempio1buckets3-8aprile22
+      MetricsConfigurations:
+        - Id: EntireBucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Retain
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt
+      - S3Bucket
+      - WebsiteURL
+    Description: URL for website hosted on S3
+  S3BucketSecureURL:
+    Value: !Join
+      - ''
+      - - 'https://'
+        - !GetAtt
+          - S3Bucket
+          - DomainName
+    Description: Name of S3 bucket to hold website content
