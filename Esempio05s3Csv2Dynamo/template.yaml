@@ -1,0 +1,179 @@
+#  $ sam validate
+#  $ sam build
+#  $ sam deploy --stack-name esempio05s3csv2dynamo --capabilities CAPABILITY_IAM
+#    nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
+#  $ aws s3 cp ../Esempio04s3NotificaLamba/prova.csv s3://esempio05s3csv2dynamo
+#  $ sam logs --stack-name esempio05s3csv2dynamo
+#  $ sam delete --stack-name esempio05s3csv2dynamo
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Esempio di creazione bucket S3 che se si caricare un csv trigger che lancia una lambda che crea riga in tabella dynamo
+Parameters:
+  State:
+    Type: String
+    Default: ENABLED
+    AllowedValues:
+      - ENABLED
+      - DISABLED
+  BucketName:
+    Type: String
+    Description: Nome del bucket
+    Default: esempio05s3csv2dynamo
+  DynamoName:
+    Type: String
+    Description: Nome del DB dynamo
+    Default: esempio05s3csv2dynamo
+Resources:
+  S3BucketAN7A22D:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: !Ref BucketName
+      MetricsConfigurations:
+        - Id: EntireBucket
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: csv
+            Function: !GetAtt S3NotificationAN7A22D.Arn
+    DeletionPolicy: Retain
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BucketName
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: AllowSSLRequestsOnly # AWS Foundational Security Best Practices v1.0.0 S3.5
+            Action: 's3:GetObject'
+            Effect: Allow
+            Resource: !Join
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Ref BucketName
+              - '/*'
+            #  - !GetAtt S3NotificationAN7A22D.Arn
+            Principal: '*'
+  S3NotificationAN7A22D:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Environment: 
+        Variables:
+          VDynamoName: !Ref DynamoName
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import csv
+          import codecs
+          import os
+          dynamodb = boto3.resource('dynamodb')
+          s3 = boto3.client('s3')
+          tableName = os.environ['VDynamoName'] 
+          def lambda_handler(event,context):
+            print("Esecuzione" + json.dumps(event) )
+            for record in event['Records']:
+              bucket_name = record['s3']['bucket']['name']
+              key_name = record['s3']['object']['key']
+              print('Key found: ' + key_name + ' in Bucket: ' + bucket_name)
+              s3_object = s3.get_object(Bucket=bucket_name, Key=key_name)
+              data = s3_object['Body']
+              table = dynamodb.Table(tableName)
+              for row in csv.DictReader(codecs.getreader('utf-8')(data), delimiter=';'):
+                print("Riga: " + json.dumps(row) )
+                with table.batch_writer() as batch:
+                  batch.put_item(Item=row)
+
+            return {'statusCode': 200 , 'body': 'OK'}
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaIAMRoleAN7A22D.Arn
+      Runtime: python3.6
+      Timeout: 5
+  DynamoAN7A22D:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref DynamoName
+      AttributeDefinitions:
+        - 
+          AttributeName: "A"
+          AttributeType: "S"
+#Don't include any non-key attribute definitions in AttributeDefinitions. -- DynamoDB is schemaless (except the key schema)
+#        - 
+#          AttributeName: "B"
+#          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "A"
+          KeyType: "HASH"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+  LambdaInvokePermissionAN7A22D:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !GetAtt S3NotificationAN7A22D.Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: s3.amazonaws.com
+      SourceArn: !Join
+      - ''
+      - - 'arn:aws:s3:::'
+        - !Ref BucketName
+  LambdaIAMRoleAN7A22D:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetBucketNotification'
+                  - 's3:PutBucketNotification'
+                Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref BucketName
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:BatchWriteItem'
+                Resource: !GetAtt DynamoAN7A22D.Arn
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref BucketName
+                  - '/*'
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
