@@ -1,25 +1,27 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Template CloudFormation (c) CherryBank - copia file csv da Formazione_BTV/alberto-input// a RAD-NPL/uat-rds-rad/transitoAlberto/ 
+  Template CloudFormation (c) CherryBank - copia file csv da un bucket ad un altro anche se di un account diverso
+  Oltre a questo bisogna lanciare nel bucket di destinazione 
+  Riferimento https://stackoverflow.com/questions/64492864/aws-lambda-cross-account-policy-for-lambda-function-s3-to-s3-copy
 # modello caricato via SAM con il comando 
 # $ sam validate
 # $ sam build
-# $ sam package --s3-bucket alberto-input --output-template-file packagedV1.yaml --s3-prefix REPOSITORY 
-# NON LANCAIRE $ aws s3 cp packagedV1.yaml s3://alberto-input/REPOSITORY/
-# $ sam deploy --template-file C:\Transito\2022_04\02_AWS\8aprile22sender\packagedV1.yaml --stack-name stack-sf-alberto-8aprile22 --capabilities CAPABILITY_IAM
+# $ sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
+# $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio06copias3as3 --capabilities CAPABILITY_IAM
+# opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio06copias3as3 --capabilities CAPABILITY_IAM --parameter-overrides DestBucket=uat-rds-rad
 # nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 # per provare caricamento con comando 
-# $ aws s3 cp prova.csv s3://alberto-input/INPUT/prova.csv
-# $ sam logs --stack-name stack-sf-alberto-8aprile22
-# $ sam delete --stack-name stack-sf-alberto-8aprile22
-# da Formazione_BTV/alberto-input// a RAD-NPL/uat-rds-rad/transitoAlberto/
+# $ aws s3 cp ../Esempio04s3NotificaLamba/prova.csv s3://bucket-invio/prova.csv
+# $ sam logs --stack-name esempio06copias3as3
+# $ sam delete --stack-name esempio06copias3as3
+# da XX/CX/ a YY/CY/
   
 Parameters:
   SFName:
     Type: String
     Description: Step funcion name
-    Default: sf-alberto-8aprile22
+    Default: esempio06copias3as3
   Environment:
     Description: An environment name that is prefixed to resource names
     Type: String
@@ -27,7 +29,7 @@ Parameters:
   SourceBucket:
     Type: String
     Description: Source Bucket
-    Default: alberto-input
+    Default: bucket-invio
   SourcePath:
     Type: String
     Description: Source Path
@@ -35,12 +37,12 @@ Parameters:
   DestBucket:
     Type: String
     Description: Dest Bucket
-    Default: uat-rds-rad
-  DestPath:
-    Type: String
-    Description: DestPath
-    Default: transitoAlberto
-  SenderAccountId: #RAD
+    Default: bucket-destinazione
+#  DestPath:
+#    Type: String
+#    Description: DestPath
+#    Default: OUTPUT
+  SenderAccountId: 
     Type: String
     Description: Sender AccountId
     Default: "740456629644"
@@ -62,40 +64,37 @@ Parameters:
 #  FlagCreateS3Bucket: !Equals [!Ref SourceBucket, ""]
 
 Resources:
-  # SourceBucketInput:
-    # Type: 'AWS::S3::Bucket'
-    # #Condition: FlagCreateS3Bucket,
-    # DeletionPolicy: Retain
-    # #UpdateReplacePolicy: Retain
-    # Properties:
-      # BucketName: !Ref SourceBucket
-      # AccessControl: PublicRead
-      # PublicAccessBlockConfiguration:
-        # BlockPublicAcls: false
-        # BlockPublicPolicy: false
-        # IgnorePublicAcls: false
-        # RestrictPublicBuckets: false
-      # NotificationConfiguration:
-        # EventBridgeConfiguration:
-          # EventBridgeEnabled: true
+  SourceBucketInput:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref SourceBucket
+      AccessControl: PublicRead
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
 
-  # EventfullBucketPolicy:
-    # Type: AWS::S3::BucketPolicy
-    # #Condition: FlagCreateS3Bucket,
-    # Properties:
-      # Bucket: !Ref SourceBucket
-      # PolicyDocument:
-        # Statement:
-        # - Action: "*"
-          # Effect: Allow
-          # Resource: !Join ["",["arn:aws:s3:::",!Ref SourceBucket,"/*"]]
-          # Principal: 
-            # AWS: !Sub arn:aws:iam::${RecieverAccountId}:root
-        # -  Action: "*"
-           # Effect: Allow
-           # Resource: !Join ["",["arn:aws:s3:::",!Ref SourceBucket]]
-           # Principal: 
-            # AWS: !Sub arn:aws:iam::${RecieverAccountId}:root
+  EventfullBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SourceBucket
+      PolicyDocument:
+        Statement:
+        - Action: "*"
+          Effect: Allow
+          Resource: !Join ["",["arn:aws:s3:::",!Ref SourceBucket,"/*"]]
+          Principal: 
+            AWS: !Sub arn:aws:iam::${RecieverAccountId}:root
+        -  Action: "*"
+           Effect: Allow
+           Resource: !Join ["",["arn:aws:s3:::",!Ref SourceBucket]]
+           Principal: 
+            AWS: !Sub arn:aws:iam::${RecieverAccountId}:root
 
   TriggerOnFilePutEventRule:
     Type: AWS::Events::Rule
@@ -127,13 +126,14 @@ Resources:
       Principal: events.amazonaws.com
       SourceArn: !GetAtt TriggerOnFilePutEventRule.Arn
 
-#https://stackoverflow.com/questions/70604208/how-to-execute-a-lambda-function-which-copies-objects-from-one-s3-bucket-to-anot
+  #see https://stackoverflow.com/questions/70604208/how-to-execute-a-lambda-function-which-copies-objects-from-one-s3-bucket-to-anot
   StartLambdaNewFile:
     Type: 'AWS::Lambda::Function'
     Properties:
       Environment: 
         Variables:
           CDestBucket: !Ref DestBucket
+#          CDestPath : !Ref DestPath
       Code:
         ZipFile: |
           import json
@@ -150,7 +150,8 @@ Resources:
             copy_source = {'Bucket': source_bucket,'Key': source_key }
             #specify destination bucket
             destination_bucket_name=os.environ['CDestBucket']
-            target_key = source_key
+            #target_key = {'Bucket': destination_bucket_name,'Key': os.environ['CDestPath'] + source_key }
+            target_key = copy_source
             #write copy statement 
             print ( "Source source_bucket:"+source_bucket+" source_key:"+source_key+" destination_bucket_name:"+ destination_bucket_name)
             s3_resource.Bucket(destination_bucket_name).Object(target_key).copy(copy_source, ExtraArgs={'ACL': 'bucket-owner-full-control'})
