@@ -12,11 +12,25 @@ Description: >
 # opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio06copias3as3 --capabilities CAPABILITY_IAM --parameter-overrides DestBucket=uat-rds-rad
 # nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 # per provare caricamento con comando 
-# $ aws s3 cp ../Esempio04s3NotificaLamba/prova.csv s3://bucket-invio/prova.csv
+# $ aws s3 cp ../Esempio04s3NotificaLamba/prova.csv s3://bucket-invio/INPUT.csv
 # $ sam logs --stack-name esempio06copias3as3
 # $ sam delete --stack-name esempio06copias3as3
 # da XX/CX/ a YY/CY/
-  
+# se si ottiene Access Denied in fase di caricamento
+# bisogna ricordarsi di aggiungere al bucket di destinazione la regola IAM-RULE
+# ada
+# {
+# "Effect": "Allow",
+# "Principal": {
+# "AWS": "arn:aws:lambda:eu-west-1:740456629644:function:esempio06copias3as3-StartLambdaNewFile-ExwkPR4nV1lW"
+# },
+# "Action": "*",
+# "Resource": [
+# "arn:aws:s3:::uat-rds-rad",
+# "arn:aws:s3:::uat-rds-rad/*"
+# ]
+# },
+
 Parameters:
   SFName:
     Type: String
@@ -148,10 +162,9 @@ Resources:
             source_bucket = event['detail']['requestParameters']['bucketName']
             source_key = event['detail']['requestParameters']['key']
             copy_source = {'Bucket': source_bucket,'Key': source_key }
-            #specify destination bucket
+            #specify destination bucket and target key
             destination_bucket_name=os.environ['CDestBucket']
-            #target_key = {'Bucket': destination_bucket_name,'Key': os.environ['CDestPath'] + source_key }
-            target_key = copy_source
+            target_key = source_key
             #write copy statement 
             print ( "Source source_bucket:"+source_bucket+" source_key:"+source_key+" destination_bucket_name:"+ destination_bucket_name)
             s3_resource.Bucket(destination_bucket_name).Object(target_key).copy(copy_source, ExtraArgs={'ACL': 'bucket-owner-full-control'})
