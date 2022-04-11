@@ -130,3 +130,6 @@ dmypy.json
 
 #AWS SAM
 .aws-sam
+
+#Compiled packaged by SAM
+packagedV1.yaml

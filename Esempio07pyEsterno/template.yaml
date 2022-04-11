@@ -1,0 +1,148 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: sfAggiornamentoRapporti
+
+# Esempio cluodFormation con lambda python esterna
+# C:\Workspace\AwsSam\AWSCloudFormationExamples\Esempio07pyEsterno
+#     nota: nel sistema deve essere installato Python 3.8, con versioni successive NON funziona
+# $ sam validate
+# $ sam build
+# $ sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
+# $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio07pyesterno --capabilities CAPABILITY_IAM
+#   opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio07pyesterno --capabilities CAPABILITY_IAM --parameter-overrides SourceBucket1=alberto-input
+#   nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
+# per provare caricamento con comando 
+# $ aws s3 cp ../Esempio04s3NotificaLamba/prova.csv s3://alberto-input/INPUT07.csv
+# $ sam logs --stack-name esempio07pyesterno
+# $ sam delete --stack-name esempio07pyesterno
+
+Parameters:
+  SourceBucket1:
+    Type: String
+    Description: Source Bucket 1
+    Default: alberto-input
+  SourceBucket2:
+    Type: String
+    Description: Source Bucket 2
+    Default: alberto-input2
+  TargetBucket:
+    Type: String
+    Description: Bucket destinazione
+    Default: bucket-invio
+  SourcePath:
+    Type: String
+    Description: Source Path
+    Default: INPUT07
+
+Resources:
+
+  ExternalPyLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda
+      Handler: s3_file_concat.entrypoint
+      Runtime: python3.8
+      MemorySize: 512
+      Timeout: 900
+      Environment: 
+        Variables:
+          SOURCE_BUCKET_1: !Ref SourceBucket1
+          SOURCE_BUCKET_2: !Ref SourceBucket2
+          TARGET_BUCKET: !Ref TargetBucket
+      Policies:
+        - Statement:
+          - Sid: AllowS3BucketReadWriteAccess
+            Effect: Allow
+            Action: "s3:*"
+            Resource: "*"
+
+  TriggerExternalPy:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: default
+      EventPattern:
+        source: 
+          - "aws.s3"
+        detail: 
+          eventSource:
+            - 's3.amazonaws.com'
+          eventName:
+            - 'CopyObject'
+            - 'PutObject'
+          requestParameters:
+            bucketName:
+              - !Ref SourceBucket1
+            key:
+              - prefix: !Ref SourcePath
+      Targets:
+        - Id: id1
+          Arn: !GetAtt ExternalPyLambda.Arn
+
+  PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: !Ref ExternalPyLambda
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt TriggerExternalPy.Arn
+
+
+  StartLambdaNewFileRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetBucketNotification'
+                  - 's3:PutBucketNotification'
+                Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref SourceBucket1
+                  - '/*'
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref SourceBucket1
+                  - '/*'
+              - Effect: Allow
+                Action:
+                  - 's3:PutObjectAcl'
+                  - 's3:PutObject'
+                Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref TargetBucket
+                  - '/*'
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+  ExternalPyArn:
+    Description: File Merger Function ARN
+    Value: !GetAtt ExternalPyLambda.Arn
