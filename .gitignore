@@ -132,4 +132,4 @@ dmypy.json
 .aws-sam
 
 #Compiled packaged by SAM
-packagedV1.yaml
+packaged*.yaml

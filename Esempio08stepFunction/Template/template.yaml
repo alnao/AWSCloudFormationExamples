@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Template CloudFormation (c) CherryBank - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
+
+# Promemoria:
+# Nel bucket sorgente deve essere attivata (manualmente) la proprietà EventBridgeConfiguration: EventBridgeEnabled: true
+
+# modello caricato via SAM con il comando 
+# $ sam validate
+# $ sam build
+# $ sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
+# $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08complete --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+# opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08complete --capabilities CAPABILITY_IAM --parameter-overrides TargetBucket=input-alberto2
+# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
+# per provare caricamento con comando 
+# $ aws s3 cp ../../Esempio04s3NotificaLamba/prova.csv s3://alberto-input/INPUT/prova.csv
+# $ aws s3 ls s3://alberto-input/INPUT/
+# $ aws s3 ls s3://alberto-input2/OUTPUT/
+# $ sam logs --stack-name esempio08complete
+# $ sam delete --stack-name esempio08complete
+
+Parameters:
+  SourceBucket:
+    Type: String
+    Description: Source Bucket
+    Default: alberto-input
+  TargetBucket:
+    Type: String
+    Description: Bucket destinazione
+    Default: alberto-input2
+  SourcePath:
+    Type: String
+    Description: Source Path
+    Default: INPUT/
+  SourceFilePattern:
+    Type: String
+    Description: Source Path
+    Default: prova.csv
+  DestFileName:
+    Type: String
+    Description: Source Path
+    Default: provaDest.csv
+  DestFilePath:
+    Type: String
+    Description: Source Path
+    Default: OUTPUT
+
+Resources:
+  # TRIGGER --> lambda --> step function
+  Esempio08Trigger:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ../Trigger/template.yaml
+      Parameters:
+        SourceBucket: !Ref SourceBucket
+        SourcePath: !Ref SourcePath
+        StateMachineArn: !GetAtt Esempio08Application.Outputs.StateMachineArn
+        StateMachineName: !GetAtt Esempio08Application.Outputs.StateMachineName
+        SourceFilePattern: !Ref SourceFilePattern
+  
+  Esempio08Application:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ../StateMachine/template.yaml
+      Parameters:
+        SFName: Esempio08StateMachine
+        SourceBucket: !Ref SourceBucket
+        SourcePath: !Ref SourcePath
+        TargetBucket: !Ref TargetBucket
+        DestFileName: !Ref DestFileName
+        DestFilePath: !Ref DestFilePath
+        #SourceStagingPath: !Ref ArcaresStagingInputPath
+        #DestStagingPath: !Ref CedacriStagingPath
+        #FtpToCedacriFnArn: !Ref FtpToCedacriFnArn
+
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+...

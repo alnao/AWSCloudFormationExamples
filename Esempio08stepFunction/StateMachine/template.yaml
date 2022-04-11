@@ -1,0 +1,128 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Template CloudFormation (c) CherryBank - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
+  State machine che esegue lo spostamento di un file da un bucket ad un altro
+
+# $ sam validate
+# $ sam build
+# $ sam package --output-template-file packagedV1SM.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
+# $ sam deploy --template-file .\packagedV1SM.yaml --stack-name esempio08statemachine --capabilities CAPABILITY_IAM 
+# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
+# --parameter-overrides SourceBucket= SourcePath= DestFileName= DestFilePath=OUTPUT TargetBucket=alberto-input2 SFName=Esempio08SF
+# per provare caricamento con comando 
+# $ sam logs --stack-name esempio08statemachine
+# $ sam delete --stack-name esempio08statemachine
+
+Parameters:
+  SFName:
+    Type: String
+    Default: 'Esempio08SF'
+#FlowFileName: --> DestFileName
+  DestFileName:
+    Type: String
+    Default: provaDest.csv
+  SourceBucket: 
+    Type: String
+    Default: alberto-input
+  SourcePath:
+    Type: String
+    Default: INPUT
+  TargetBucket:
+    Type: String
+    Default: alberto-input2
+  DestFileName:
+    Type: String
+    Default: provaDest.csv
+  DestFilePath:
+    Type: String
+    Default: OUTPUT
+
+Resources:
+  Esempio08StateMachineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - states.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: "buckets-and-logs"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogDelivery'
+                  - 'logs:GetLogDelivery'
+                  - 'logs:UpdateLogDelivery'
+                  - 'logs:DeleteLogDelivery'
+                  - 'logs:ListLogDeliveries'
+                  - 'logs:PutResourcePolicy'
+                  - 'logs:DescribeResourcePolicies'
+                  - 'logs:DescribeLogGroups'
+                  - 'cloudwatch:PutMetricData'
+                Resource: '*'
+#              - Effect: Allow
+#                Action:
+#                  - 'lambda:InvokeFunction'
+#                Resource: !Ref FtpFnArn
+              - Effect: Allow
+                Action: "s3:*"
+                Resource: !Sub "arn:aws:s3:::${SourceBucket}/*"
+              - Effect: Allow
+                Action: "s3:*"
+                Resource: !Sub "arn:aws:s3:::${SourceBucket}/"
+              - Effect: Allow
+                Action: "s3:*"
+                Resource: !Sub "arn:aws:s3:::${TargetBucket}/*"
+              - Effect: Allow
+                Action: "s3:*"
+                Resource: !Sub "arn:aws:s3:::${TargetBucket}/"
+               
+  Esempio08StateMachineLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 3
+      LogGroupName: !Sub /aws/vendedlogs/states/${SFName}-statemachine-logs
+        
+  Esempio08StateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Ref SFName
+      Type: STANDARD
+      DefinitionUri: statemachine.yaml
+      Role: !GetAtt Esempio08StateMachineRole.Arn
+      DefinitionSubstitutions:
+        DestFileName: !Ref DestFileName
+        #FtpFnArn: !Ref FtpFnArn
+        SourcePath: !Ref SourcePath
+        SourceBucket: !Ref SourceBucket
+        TargetBucket: !Ref TargetBucket
+        DestFileName: !Ref DestFileName
+        DestFilePath: !Ref DestFilePath
+      Logging:
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt Esempio08StateMachineLogGroup.Arn
+        Level: ALL
+        IncludeExecutionData: True
+
+
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+  StateMachineArn:
+    Description: ARN of the created State Machine
+    Value: !Ref Esempio08StateMachine
+  StateMachineName:
+    Description: ARN of the created State Machine
+    Value: !GetAtt Esempio08StateMachine.Name
+    

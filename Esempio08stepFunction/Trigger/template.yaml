@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Template CloudFormation (c) CherryBank - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
+  TRIGGER che lancia la lambda che poi esegue la state machine
+
+# $ sam validate
+# $ sam build
+# $ sam package --output-template-file packagedV1T.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
+# $ sam deploy --template-file .\packagedV1T.yaml --stack-name esempio08trigger --capabilities CAPABILITY_IAM
+#   opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08trigger --capabilities CAPABILITY_IAM --parameter-overrides TargetBucket=input-alberto2
+#   nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
+# per provare caricamento con comando 
+# $ sam logs --stack-name esempio08trigger
+# $ sam delete --stack-name esempio08trigger
+
+Parameters:
+  SourceBucket:
+    Type: String
+    Default: alberto-input
+  SourcePath:
+    Type: String
+    Default: AAAAAAAAAAAAAAAAAAAA/
+  SourceFilePattern:
+    Type: String
+    Default: prova.csv
+  StateMachineArn:
+    Type: String
+    Default: 'arn:aws:states:eu-west-1:740456629644:stateMachine:AlbertoStepFunction'
+  StateMachineName:
+    Type: String
+    Default: 'StepFunction'
+  State:
+    Type: String
+    Default: ENABLED
+    AllowedValues:
+      - ENABLED
+      - DISABLED
+
+Resources:
+
+
+  Esempio08TriggerOnFilePutEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: default
+      State: !Ref State
+      EventPattern:
+        source: 
+          - "aws.s3"
+        detail: 
+          eventSource:
+            - 's3.amazonaws.com'
+          eventName:
+            - 'CopyObject'
+            - 'PutObject'
+            - 'PutObjectAcl'
+            - 'CompleteMultipartUpload'
+          requestParameters:
+            bucketName:
+              - !Ref SourceBucket
+            key:
+              - prefix: !Ref SourcePath
+      Targets:
+        - Id: id1
+          Arn: !GetAtt Esempio08Lambda.Arn
+
+  Esempio08PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: !GetAtt Esempio08Lambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+#      SourceArn: !GetAtt Esempio08TriggerOnFilePutEventRule.Arn
+      SourceArn: !Join
+      - ''
+      - - 'arn:aws:s3:::'
+        - !Ref SourceBucket
+
+  Esempio08Lambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda
+      Handler: start_sm_on_new_s3_key.entrypoint
+      Runtime: python3.8
+      MemorySize: 128
+      Environment: 
+        Variables:
+          STATE_MACHINE_ARN: !Ref StateMachineArn
+          FILE_PATTERN_MATCH: !Ref SourceFilePattern
+      Role: !GetAtt Esempio08LambdaIamRole.Arn
+      Policies:
+        - Statement:
+          - Sid: AllowAccessToStepFunction
+            Effect: Allow
+            Action: "states:*"
+            Resource: !Ref StateMachineArn
+        - StepFunctionsExecutionPolicy:
+          StateMachineName: !Ref StateMachineName
+
+  Esempio08LambdaIamRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetBucketNotification'
+                  - 's3:PutBucketNotification'
+                Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref SourceBucket
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref SourceBucket
+                  - '/*'
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+              - Effect: Allow
+                Action: 
+                  - 'states:StartExecution'
+                Resource: !Ref StateMachineArn
+
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+...
+
