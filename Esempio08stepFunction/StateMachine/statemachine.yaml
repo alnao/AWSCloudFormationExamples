@@ -5,9 +5,9 @@ States:
     Type: Task
     Resource: arn:aws:states:::aws-sdk:s3:copyObject
     Parameters:
-      Bucket: ${TargetBucket}
+      Bucket: ${DestBucket}
       CopySource.$: States.Format('${SourceBucket}/${SourcePath}/{}', $.filename)
-      Key.$: States.Format('${DestFilePath}/{}-{}', $.DestFileName, $$.Execution.StartTime)
+      Key.$: States.Format('${DestFilePath}/${DestFileName}-{}', $$.Execution.StartTime)
     ResultPath: null
     Next: DeleteInputFile
 
@@ -20,11 +20,21 @@ States:
     ResultPath: null
     Next: End
 
-#  Ftp:
+#  CreateCopyForXXXX:
+#    Type: Task
+#    Resource: arn:aws:states:::aws-sdk:s3:copyObject
+#    Parameters:
+#      Bucket: ${StagingBucket}
+#      CopySource.$: States.Format('${StagingBucket}/${SourceStagingPath}/{}-{}', $.filename, $$.Execution.StartTime)
+#      Key.$: States.Format('${DestStagingPath}/{}-{}', $.filename, $$.Execution.StartTime)
+#    ResultPath: null
+#    Next: FtpToXXXX
+#
+#  FtpToXXXX:
 #    Type: Task
 #    Resource: arn:aws:states:::lambda:invoke
 #    Parameters:
-#      FunctionName: ${FtpToCedacriFnArn}
+#      FunctionName: ${FtpToXXXXFnArn}
 #      Payload:  
 #        file:
 #          s3bucket: ${StagingBucket}

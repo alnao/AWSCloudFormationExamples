@@ -1,14 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Template CloudFormation (c) CherryBank - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
+  Template CloudFormation - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
   TRIGGER che lancia la lambda che poi esegue la state machine
 
 # $ sam validate
 # $ sam build
 # $ sam package --output-template-file packagedV1T.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
 # $ sam deploy --template-file .\packagedV1T.yaml --stack-name esempio08trigger --capabilities CAPABILITY_IAM
-#   opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08trigger --capabilities CAPABILITY_IAM --parameter-overrides TargetBucket=input-alberto2
+#   opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08trigger --capabilities CAPABILITY_IAM --parameter-overrides DestBucket=input-alberto2
 #   nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 # per provare caricamento con comando 
 # $ sam logs --stack-name esempio08trigger
@@ -71,11 +71,11 @@ Resources:
       FunctionName: !GetAtt Esempio08Lambda.Arn
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-#      SourceArn: !GetAtt Esempio08TriggerOnFilePutEventRule.Arn
-      SourceArn: !Join
-      - ''
-      - - 'arn:aws:s3:::'
-        - !Ref SourceBucket
+      SourceArn: !GetAtt Esempio08TriggerOnFilePutEventRule.Arn
+#      SourceArn: !Join
+#      - ''
+#      - - 'arn:aws:s3:::'
+#        - !Ref SourceBucket
 
   Esempio08Lambda:
     Type: AWS::Serverless::Function

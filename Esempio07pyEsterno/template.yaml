@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Template CloudFormation (c) CherryBank - Esempio07pyEsterno 
+  Template CloudFormation - Esempio07pyEsterno 
   template esegue una lambda esterna in un file dentro la cartella lambda
   eventualmente si può modificare la lambda interna per fare cose diverse, per ora mostra solo un dump dell'event
 

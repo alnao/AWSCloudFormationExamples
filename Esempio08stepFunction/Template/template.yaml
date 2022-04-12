@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Template CloudFormation (c) CherryBank - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
+  Template CloudFormation - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
 
 # Promemoria:
 # Nel bucket sorgente deve essere attivata (manualmente) la proprietà EventBridgeConfiguration: EventBridgeEnabled: true
@@ -11,7 +11,7 @@ Description: >
 # $ sam build
 # $ sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
 # $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08complete --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
-# opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08complete --capabilities CAPABILITY_IAM --parameter-overrides TargetBucket=input-alberto2
+# opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08complete --capabilities CAPABILITY_IAM --parameter-overrides DestBucket=input-alberto2
 # nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 # per provare caricamento con comando 
 # $ aws s3 cp ../../Esempio04s3NotificaLamba/prova.csv s3://alberto-input/INPUT/prova.csv
@@ -25,25 +25,25 @@ Parameters:
     Type: String
     Description: Source Bucket
     Default: alberto-input
-  TargetBucket:
+  SourcePath:
+    Type: String
+    Description: Source Path senza barre iniziali e finali
+    Default: INPUT
+  SourceFilePattern:
+    Type: String
+    Description: Source Path solo il nome del file
+    Default: prova.csv
+  DestBucket:
     Type: String
     Description: Bucket destinazione
     Default: alberto-input2
-  SourcePath:
-    Type: String
-    Description: Source Path
-    Default: INPUT/
-  SourceFilePattern:
-    Type: String
-    Description: Source Path
-    Default: prova.csv
   DestFileName:
     Type: String
-    Description: Source Path
+    Description: Source Path solo il nome del file
     Default: provaDest.csv
   DestFilePath:
     Type: String
-    Description: Source Path
+    Description: Source Path senza barre iniziali e finali
     Default: OUTPUT
 
 Resources:
@@ -67,7 +67,7 @@ Resources:
         SFName: Esempio08StateMachine
         SourceBucket: !Ref SourceBucket
         SourcePath: !Ref SourcePath
-        TargetBucket: !Ref TargetBucket
+        DestBucket: !Ref DestBucket
         DestFileName: !Ref DestFileName
         DestFilePath: !Ref DestFilePath
         #SourceStagingPath: !Ref ArcaresStagingInputPath
