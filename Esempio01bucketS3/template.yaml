@@ -1,8 +1,4 @@
-# $ sam validate
-# $ sam build
-# $ sam deploy --stack-name esempio1buckets3-8aprile22 --capabilities CAPABILITY_IAM
-# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
-# $ sam delete --stack-name esempio1buckets3-8aprile22
+
 AWSTemplateFormatVersion: 2010-09-09
 Description: CloudFormation s3 bucket
 Resources:
@@ -15,7 +11,7 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-      BucketName: esempio1buckets3-8aprile22
+      BucketName: esempio01buckets3
       MetricsConfigurations:
         - Id: EntireBucket
       WebsiteConfiguration:
