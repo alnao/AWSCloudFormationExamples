@@ -7,43 +7,6 @@ Description: >
   - cancella originale
   - copia staging out 
   - invio a bucket applicativo
-  
-# Promemoria:
-# Nel bucket sorgente deve essere attivata (manualmente) la proprietà EventBridgeConfiguration: EventBridgeEnabled: true
-# Nel bucket destinazione bisogna assegnare la regola IAM della step function al bucket 
-#{
-#    "Version": "2012-10-17",
-#    "Statement": [{
-#            "Sid": "Statement1",
-#            "Effect": "Allow",
-#            "Principal": {
-#                "AWS": [
-#                    "arn:aws:iam::740456629644:role/esempio09complete-Esempio-Esempio09StateMachineRol-109W2XYMJ9JIN",
-#                ]
-#            },
-#            "Action": "s3:*",
-#            "Resource": [
-#                "arn:aws:s3:::nome-bucket",
-#                "arn:aws:s3:::nome-bucket/*"
-#            ]
-#        }
-#    ]
-#}
-
-
-# modello caricato via SAM con il comando 
-# $ sam validate
-# $ sam build
-# $ sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
-# $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio09complete --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
-# opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio09complete --capabilities CAPABILITY_IAM --parameter-overrides DestBucket=input-alberto2
-# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
-# per provare caricamento con comando 
-# $ aws s3 cp ../../Esempio04s3NotificaLamba/prova.csv s3://sftp-simulator/input01/FILE_INPUT-1234.csv
-# $ aws s3 ls s3://sftp-simulator/input01/
-# $ aws s3 ls s3://application-bucket/folder/
-# $ sam logs --stack-name esempio09complete
-# $ sam delete --stack-name esempio09complete
 
 Parameters:
   SourceFilePattern:
@@ -88,7 +51,7 @@ Resources:
   Esempio09Trigger:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ../Trigger/trigger.yaml
+      Location: ./Trigger/trigger.yaml
       Parameters:
         SourceBucket: !Ref SourceBucket
         SourcePath: !Ref SourcePath
@@ -99,7 +62,7 @@ Resources:
   Esempio09Application:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ../StateMachine/application.yaml
+      Location: ./StateMachine/application.yaml
       Parameters:
         SFName: Esempio09StateMachine
         SourcePath: !Ref SourcePath
