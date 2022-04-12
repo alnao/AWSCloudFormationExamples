@@ -5,20 +5,6 @@ Description: >
   template esegue una lambda esterna in un file dentro la cartella lambda
   eventualmente si può modificare la lambda interna per fare cose diverse, per ora mostra solo un dump dell'event
 
-# Esempio cluodFormation con lambda python esterna
-# C:\Workspace\AwsSam\AWSCloudFormationExamples\Esempio07pyEsterno
-#     nota: nel sistema deve essere installato Python 3.8, con versioni successive NON funziona
-# $ sam validate
-# $ sam build
-# $ sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
-# $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio07pyesterno --capabilities CAPABILITY_IAM
-#   opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio07pyesterno --capabilities CAPABILITY_IAM --parameter-overrides SourceBucket1=alberto-input
-#   nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
-# per provare caricamento con comando 
-# $ aws s3 cp ../Esempio04s3NotificaLamba/prova.csv s3://alberto-input/INPUT07.csv
-# $ sam logs --stack-name esempio07pyesterno
-# $ sam delete --stack-name esempio07pyesterno
-
 Parameters:
   SourceBucket1:
     Type: String
