@@ -12,7 +12,6 @@ La step function esegue i passi:
 ### Comandi per la creazione con nome parametrico
 
 ```
-cd Template
 sam validate
 sam build
 sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
