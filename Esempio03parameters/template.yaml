@@ -1,9 +1,3 @@
-# $ sam validate
-# $ sam build
-# $ sam deploy --stack-name esempio03parameters --capabilities CAPABILITY_IAM
-# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
-# $ aws s3 cp ../Esempio02bucketS3sito/index.html s3://esempio03parameters/
-# $ sam delete --stack-name esempio03parameters
 AWSTemplateFormatVersion: 2010-09-09
 Description: CloudFormation template for s3 bucket con BucketPolicy
 Parameters:
