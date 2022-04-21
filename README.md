@@ -32,6 +32,8 @@ AWS CloudFormation Examples
   - cancellazione dell'originale
   - copia in una cartella staging OUT
   - copia in un bucket esterno
+- 10: api rest con chiamata lambda (script da ApiManager)
+- 11: lambda(Py) esposta con API che ritorna un json di esempio
 
 ## See
 http://www.alnao.it/wordpress/aws/

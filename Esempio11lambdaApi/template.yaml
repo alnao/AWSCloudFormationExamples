@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS Lambda & API HTTP
+#Documentation & Examples
+#FROM https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-httpapi.html
+#https://cevo.com.au/post/well-architected-serverless-aws-lambda-powertools-for-python/
+#https://github.com/ScottScovell/well-architected-serverless/blob/main/template.yaml
+#https://docs.aws.amazon.com/it_it/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  StageName:
+    Type: String
+    Default: Prod
+    
+Resources:
+  ES11HttpApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      InlineCode: |
+          def handler(event, context):
+              import json
+              return {
+                  "statusCode": 200,
+                  "body": json.dumps(event),
+              }
+      Handler: index.handler
+      Runtime: python3.7
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ES11HttpApi
+            Method: GET
+            Path: /path
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "2.0"
+#            RouteSettings:
+#              ThrottlingBurstLimit: 600
+  ES11HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+#      Name: Basic AWS Api Gateway
+      StageName: !Ref StageName
+      RouteSettings:
+        "GET /path":
+          ThrottlingBurstLimit: 500 # overridden in HttpApi Event
+#      Tags:
+#        Tag: Value
+#      AccessLogSettings:
+#        DestinationArn: !GetAtt AccessLogs.Arn
+#        Format: $context.requestId
+#      DefaultRouteSettings:
+#       ThrottlingBurstLimit: 200
+#      StageVariables:
+#        StageVar: Value
+#      FailOnWarnings: true
+#  AccessLogs:
+#    Type: AWS::Logs::LogGroup
+
+Outputs:
+  HttpApiUrl:
+    Description: URL of your API endpoint
+    Value:
+      Fn::Sub: 'https://${ES11HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/${StageName}/path'
+
+
