@@ -1,0 +1,247 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Template CloudFormation - AlNao.it - exempio12 con bucket con trigger, dynamoDB, lambda di caricamento, api rest CRUD
+
+# bucket di appoggio
+# trigger sul bucket per lanciare la lambda
+# lambda di caricamento da file csv a dynamo
+# tabella Dynamo
+# permessi della lambda caricamento di accedere a S3 e Dynamo
+# api gateway
+#  rest api get
+#  rest api post
+#  rest api put https://www.fernandomc.com/posts/ten-examples-of-getting-data-from-dynamodb-with-python-and-boto3/
+#  rest api delete
+
+#see
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-api.html
+# https://www.fernandomc.com/posts/ten-examples-of-getting-data-from-dynamodb-with-python-and-boto3/
+# https://itnext.io/setting-up-api-gateway-with-dynamodb-using-cloudformation-a8ab3e70f494
+# https://dynobase.dev/dynamodb-python-with-boto3/
+#  dynamodb = boto3.resource('dynamodb', region_name=region)
+#  tables = list(dynamodb.tables.all())
+
+Parameters:
+  State:
+    Type: String
+    Default: ENABLED
+    AllowedValues:
+      - ENABLED
+      - DISABLED
+  BucketName:
+    Type: String
+    Description: Nome del bucket
+    Default: esempio12-dynamo-api-crud
+  DynamoName:
+    Type: String
+    Description: Nome del DB dynamo
+    Default: esempio12dynamoApiCrud
+  FilePattern:
+    Type: String
+    Default: es12
+  Stage:
+    Type: String
+    Default: dev
+Resources:
+#  ES12Bucket:
+#    Type: 'AWS::S3::Bucket'
+#    Properties:
+#      AccessControl: PublicRead
+#      PublicAccessBlockConfiguration:
+#        BlockPublicAcls: false
+#        BlockPublicPolicy: false
+#        IgnorePublicAcls: false
+#        RestrictPublicBuckets: false
+#      BucketName: !Ref BucketName
+#      MetricsConfigurations:
+#        - Id: EntireBucket
+#      NotificationConfiguration:
+#        EventBridgeConfiguration:
+#          EventBridgeEnabled: true
+#    DeletionPolicy: Retain
+
+  ES12NotificationLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda
+      Handler: csv_to_dynamo.entrypoint
+      Runtime: python3.8
+      MemorySize: 128
+      Environment: 
+        Variables:
+          DynamoName: !Ref DynamoName
+      Role: !GetAtt ES12LambdaIAMRole.Arn
+      Timeout: 500
+
+  ES12TriggerExternalPy:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: default
+      EventPattern:
+        source: 
+          - "aws.s3"
+        detail: 
+          eventSource:
+            - 's3.amazonaws.com'
+          eventName:
+            - 'CopyObject'
+            - 'PutObject'
+          requestParameters:
+            bucketName:
+              - !Ref BucketName
+            key:
+              - prefix: !Ref FilePattern
+      Targets:
+        - Id: id1
+          Arn: !GetAtt ES12NotificationLambda.Arn
+  ES12PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: !Ref ES12NotificationLambda
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ES12TriggerExternalPy.Arn
+  ES12Dynamo:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref DynamoName
+      AttributeDefinitions:
+        - 
+          AttributeName: "id"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+  ES12LambdaIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetBucketNotification'
+                  - 's3:PutBucketNotification'
+                Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref BucketName
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:BatchWriteItem'
+                Resource: !GetAtt ES12Dynamo.Arn
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                Resource: !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref BucketName
+                  - '/*'
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+
+  ES12APIRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: APIPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                - "dynamodb:PutItem"
+                - "dynamodb:UpdateItem"
+                - "dynamodb:DeleteItem"
+                - "dynamodb:GetItem"
+                - "dynamodb:Scan"
+                Resource: !GetAtt ES12Dynamo.Arn
+  ES12ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      OpenApiVersion: 3.0.2
+      CacheClusterEnabled: false
+      CacheClusterSize: '0.5'
+      Cors:
+        AllowMethods: "'POST, GET'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: GET
+          CachingEnabled: false
+          CacheTtlInSeconds: 300
+#        - ResourcePath: /
+#          HttpMethod: POST
+#          CachingEnabled: false
+#          CacheTtlInSeconds: 300
+  ES12ApiGetFunction: # Adds a GET api endpoint at "/" to the ES12ApiGateway via an Api event
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt ES12APIRole.Arn
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+            RestApiId:
+              Ref: ES12ApiGateway
+      Runtime: python3.7
+      Handler: index.handler
+      MemorySize: 128
+      Environment: 
+        Variables:
+          DynamoName: !Ref DynamoName
+      InlineCode: |
+        import boto3
+        import os
+        import json
+        TABLE_NAME = os.environ['DynamoName'] 
+        def handler(event, context):
+            dynamodb = boto3.resource('dynamodb', region_name="eu-west-1")
+            table = dynamodb.Table(TABLE_NAME)
+            response = table.scan() #FilterExpression=Attr('id').eq('1') | Attr('id').eq('2'))
+            return {'body': json.dumps(response['Items']), 'statusCode': 200, 'headers' : {'Access-Control-Allow-Origin':'*'} }
+#TODO
+#ES12ApiPostFunction
+
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+  UrlGet:
+    Description: Endpoint URL GET method
+    Value: !Sub https://${ES12ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
