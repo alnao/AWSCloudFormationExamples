@@ -234,7 +234,7 @@ Resources:
             dynamodb = boto3.resource('dynamodb', region_name="eu-west-1")
             table = dynamodb.Table(TABLE_NAME)
             response = table.scan() #FilterExpression=Attr('id').eq('1') | Attr('id').eq('2'))
-            return {'body': json.dumps(response['Items']), 'statusCode': 200, 'headers' : {'Access-Control-Allow-Origin':'*'} }
+            return {'body': json.dumps(response['Items']), 'statusCode': 200, 'headers' : {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'*'} }
 #TODO
 #ES12ApiPostFunction
 
