@@ -10,16 +10,16 @@ Description: Template CloudFormation - AlNao.it - exempio12 con bucket con trigg
 # api gateway
 #  rest api get
 #  rest api post
-#  rest api put https://www.fernandomc.com/posts/ten-examples-of-getting-data-from-dynamodb-with-python-and-boto3/
 #  rest api delete
-
-#see
+# see
 # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-api.html
 # https://www.fernandomc.com/posts/ten-examples-of-getting-data-from-dynamodb-with-python-and-boto3/
 # https://itnext.io/setting-up-api-gateway-with-dynamodb-using-cloudformation-a8ab3e70f494
 # https://dynobase.dev/dynamodb-python-with-boto3/
 #  dynamodb = boto3.resource('dynamodb', region_name=region)
 #  tables = list(dynamodb.tables.all())
+# BOTO3:documnetation
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item
 
 Parameters:
   State:
@@ -187,6 +187,12 @@ Resources:
                 - "dynamodb:GetItem"
                 - "dynamodb:Scan"
                 Resource: !GetAtt ES12Dynamo.Arn
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
   ES12ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
@@ -203,10 +209,14 @@ Resources:
           HttpMethod: GET
           CachingEnabled: false
           CacheTtlInSeconds: 300
-#        - ResourcePath: /
-#          HttpMethod: POST
-#          CachingEnabled: false
-#          CacheTtlInSeconds: 300
+        - ResourcePath: /
+          HttpMethod: POST
+          CachingEnabled: false
+          CacheTtlInSeconds: 300
+        - ResourcePath: /
+          HttpMethod: DELETE
+          CachingEnabled: false
+          CacheTtlInSeconds: 300
   ES12ApiGetFunction: # Adds a GET api endpoint at "/" to the ES12ApiGateway via an Api event
     Type: AWS::Serverless::Function
     Properties:
@@ -231,17 +241,87 @@ Resources:
         import json
         TABLE_NAME = os.environ['DynamoName'] 
         def handler(event, context):
+            print("Esecuzione" + json.dumps(event) )
             dynamodb = boto3.resource('dynamodb', region_name="eu-west-1")
             table = dynamodb.Table(TABLE_NAME)
             response = table.scan() #FilterExpression=Attr('id').eq('1') | Attr('id').eq('2'))
             return {'body': json.dumps(response['Items']), 'statusCode': 200, 'headers' : {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'*'} }
-#TODO
-#ES12ApiPostFunction
-
+            #
+  ES12ApiPostFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt ES12APIRole.Arn
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: post
+            RestApiId:
+              Ref: ES12ApiGateway
+      Runtime: python3.7
+      Handler: index.handler
+      MemorySize: 128
+      Environment: 
+        Variables:
+          DynamoName: !Ref DynamoName
+      InlineCode: |
+        import boto3
+        import os
+        import json
+        import datetime
+        from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
+        TABLE_NAME = os.environ['DynamoName'] 
+        def handler(event, context):
+            print("Esecuzione" + json.dumps(event) )
+            post_str = event['body']
+            post = json.loads(post_str)
+            current_timestamp = datetime.datetime.now().isoformat()
+            post['updatedAt'] = current_timestamp
+            #print("Esecuzione post" + json.dumps(post) )
+            ts= TypeSerializer()
+            serialized_post= ts.serialize(post)["M"]
+            #print("Esecuzione serialized_post" + json.dumps(serialized_post) )
+            client = boto3.client('dynamodb')
+            res = client.put_item(TableName=TABLE_NAME,Item=serialized_post)
+            return {'body': json.dumps(res), 'statusCode': 201, 'headers' : {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'*'} }
+  ES12ApiDeleteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt ES12APIRole.Arn
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: delete
+            RestApiId:
+              Ref: ES12ApiGateway
+      Runtime: python3.7
+      Handler: index.handler
+      MemorySize: 128
+      Environment: 
+        Variables:
+          DynamoName: !Ref DynamoName
+      InlineCode: |
+        import boto3
+        import os
+        import json
+        import datetime
+        from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
+        TABLE_NAME = os.environ['DynamoName'] 
+        def handler(event, context):
+            print("Esecuzione" + json.dumps(event) )
+            post_str = event['body']
+            post = json.loads(post_str)
+            idValue = post['id']
+            client = boto3.client('dynamodb')
+            res = client.delete_item(TableName=TABLE_NAME,Key={ 'id' : { 'S' : idValue } } )
+            return {'body': json.dumps(res), 'statusCode': 201, 'headers' : {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'*'} }
 Outputs:
   StackName:
     Description: Deployed StackName for update
     Value: !Ref AWS::StackName
   UrlGet:
-    Description: Endpoint URL GET method
+    Description: Endpoint URL API REST
     Value: !Sub https://${ES12ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
