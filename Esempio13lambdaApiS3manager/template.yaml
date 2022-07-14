@@ -32,6 +32,10 @@ Resources:
           HttpMethod: POST
           CachingEnabled: false
           CacheTtlInSeconds: 300
+        - ResourcePath: /file
+          HttpMethod: POST
+          CachingEnabled: false
+          CacheTtlInSeconds: 300
 # OLD VERSION WITH HttpApi
 #  Esempio13lambdaApiS3managerHttpApi:
 #    Type: AWS::Serverless::HttpApi
@@ -83,6 +87,26 @@ Resources:
           Type: Api
           Properties:
             Path: /
+            Method: GET
+            RestApiId:
+              Ref: Esempio13lambdaApiS3managerApiGateway
+      Role: !GetAtt Esempio13lambdaApiS3managerIamRole.Arn
+      Timeout: 600
+
+  Esempio13lambdaApiS3getfileHttpApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda
+      Handler: apigetfile.entrypoint
+      Runtime: python3.8
+      Environment: 
+        Variables:
+          Bucket: !Ref Bucket
+      Events:
+        ApiEventPost:
+          Type: Api
+          Properties:
+            Path: /file
             Method: GET
             RestApiId:
               Ref: Esempio13lambdaApiS3managerApiGateway
