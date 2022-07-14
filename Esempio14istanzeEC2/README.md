@@ -11,9 +11,7 @@ sam validate
 sam build
 sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
 sam deploy --template-file .\packagedV1.yaml --stack-name Esempio14istanzeEC2
- --capabilities CAPABILITY_IAM 
 ```
-nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 
 ### Comandi per la rimozione
 ```
