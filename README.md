@@ -34,6 +34,11 @@ AWS CloudFormation Examples
   - copia in un bucket esterno
 - 10: api rest con chiamata lambda (script da ApiManager)
 - 11: lambda(Py) esposta con API che ritorna un json di esempio
+- 12: CRUD Api su Tabella Dynamo (schema-less)
+- 13: lambda(Py) per gestire file (leggere e scrivere)
+- 14: avvio istanze EC2
+- 15: lambda in Java-maven
+- 16: lambda(Py) esposta con API che valida un token Jwt
 
 ## See
 http://www.alnao.it/wordpress/aws/
