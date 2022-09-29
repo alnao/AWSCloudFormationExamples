@@ -39,6 +39,7 @@ AWS CloudFormation Examples
 - 14: avvio istanze EC2
 - 15: lambda in Java-maven
 - 16: lambda(Py) esposta con API che valida un token Jwt
+- 17: lambda(Py) che esegue unzip di un file da un bucket ad un altro
 
 ## See
 http://www.alnao.it/wordpress/aws/
