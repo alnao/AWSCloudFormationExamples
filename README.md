@@ -1,18 +1,13 @@
 # AWSCloudFormationExamples
-AWS CloudFormation Examples
+AWS CloudFormation Examples by [AlNao](https://www.alnao.it/wordpress/aws)
 
 ## Prerequisiti
-- account AWS
-- AWS-CLI installato
-  - https://docs.aws.amazon.com/it_it/cli/v1/userguide/cli-chap-install.html
-- configurazione utenza tecnica su IAM di tipo programmatico con permessi
-  - e configurazione con aws
+- Un account AWS attivo
+- La AWS-CLI installata correttamente, [documentazione ufficiale](https://docs.aws.amazon.com/it_it/cli/v1/userguide/cli-chap-install.html)
+- Configurazione utenza tecnica su IAM di tipo programmatico con permessi di esecuzione di CloudFormation e configurazione della AWS-CLI con il comando
     - ```aws configuration```
-- AWS-CLI-SAM installato
-  - https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
-- configurazione da Windows o Linux di tutto
-  - ```aws configure list-profiles```
-- per ogni template
+- La AWS-CLI-SAM installata correttamente, [documentazione ufficiale](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+- Per ogni template, se non indicato diversamente, i comandi da eseguire per eseguire il deploy sono:
   - ```sam validate```
   - ```sam build```
   - ```sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input```
@@ -40,6 +35,9 @@ AWS CloudFormation Examples
 - 15: lambda in Java-maven
 - 16: lambda(Py) esposta con API che valida un token Jwt
 - 17: lambda(Py) che esegue unzip di un file da un bucket ad un altro
+- 18: template di istanza EC2 con parametri recuperati dal SSM Parameter Store
+- 19: template di istanza EC2 evolutiva del 18 con definizione di matrice mappins per dimensione dell'istanza
 
 ## See
-http://www.alnao.it/wordpress/aws/
+Tutti questi esempi sono spiegati nel sito [alnao.it](https://www.alnao.it/wordpress/aws/) nella pagina di AWS nella sottosezione dedicata ad CloudFormation.
+
