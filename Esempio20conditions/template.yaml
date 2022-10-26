@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Template CloudFormation - Esempio20conditions - template con conditions
+Description: Template CloudFormation - Esempio20conditions - template con conditions: creazione di un volume in produzione e non in dev
   
 Mappings:
   EnvInstance:
