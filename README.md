@@ -37,6 +37,7 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/wordpress/aws)
 - 17: lambda(Py) che esegue unzip di un file da un bucket ad un altro
 - 18: template di istanza EC2 con parametri recuperati dal SSM Parameter Store
 - 19: template di istanza EC2 evolutiva del 18 con definizione di matrice mappins per dimensione dell'istanza
+- 20: template di istanze EC2 evolutiva del 19 con condition: creazione di un volume solo in produzione
 
 ## See
 Tutti questi esempi sono spiegati nel sito [alnao.it](https://www.alnao.it/wordpress/aws/) nella pagina di AWS nella sottosezione dedicata ad CloudFormation.

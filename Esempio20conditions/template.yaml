@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Template CloudFormation - Esempio20conditions - template con conditions
+  
+Mappings:
+  EnvInstance:
+    dev:
+      EC2Type: t2.micro
+    prod:
+      EC2Type: t2.small
+
+Parameters:
+  EnvName:
+    Type: String
+    AllowedValues: [dev,prod]
+    Default: dev
+  ImageId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  VpcId:
+    Type: String
+    Default: vpc-0013c2751d04a7413
+  RegionAZ:
+    Type: String
+    Default: eu-west-1a    
+
+Conditions:
+  CreateVolume: !Equals [!Ref EnvName, prod]
+    
+Resources:
+  Esempio20conditionsInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !FindInMap [EnvInstance, !Ref 'EnvName', EC2Type]
+      ImageId: !Ref ImageId
+      NetworkInterfaces:
+      - GroupSet:
+        - Ref: Esempio20conditionsSg
+        SubnetId: 
+          Ref: Esempio20conditionsPubSubnetA
+        AssociatePublicIpAddress: false
+        DeviceIndex: '0'
+        DeleteOnTermination: true
+  Esempio20conditionsVolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Condition: CreateVolume
+    Properties:
+      InstanceId: !Ref Esempio20conditionsInstance
+      VolumeId: !Ref Esempio20conditionsVolume
+      Device: /dev/sdh
+  Esempio20conditionsVolume:
+    Type: AWS::EC2::Volume
+    Condition: CreateVolume
+    Properties:
+      Size: 10
+      AvailabilityZone: !Ref RegionAZ #!GetAtt Esempio20conditionsInstance.AvailabilityZone
+  Esempio20conditionsSg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      VpcId:
+        Ref: VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+  Esempio20conditionsPubSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref RegionAZ # no !Ref "AWS::Region"
+      CidrBlock: 10.199.83.0/24
+      VpcId: !Ref VpcId
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+  VolumeId:
+    Description: Volume ID if created
+    Condition: CreateVolume
+    Value: !Ref Esempio20conditionsVolume
+...
+
