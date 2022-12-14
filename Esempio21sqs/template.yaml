@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: ES21 SQS e due API in Lambda-Python (producer & consumer della queue)
+
+Parameters:
+  QueueName:
+    Type: String
+    Default: sqs-es1
+  StringParameter:
+    Type: String
+    Default: 'stringa di esempio come parametro'
+  Stage:
+    Type: String
+    Default: dev
+  AccountId:
+    Type: String
+    Default: '740456629644'
+
+Resources:
+  ES21sqsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref QueueName
+      VisibilityTimeout: 180
+      Tags:
+        -
+          Key: StackId
+          Value: !Ref AWS::StackId
+  ES21sqsQueueLambdaProducer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda
+      Handler: producer.entrypoint
+      Runtime: python3.8
+      MemorySize: 1280
+      Timeout: 900
+      Environment: 
+        Variables:
+          StringParameter: !Ref StringParameter
+          QueueName: !Ref QueueName
+          AccountId: !Ref AccountId
+      Role: !GetAtt ES21sqsQueueLambdaIamRole.Arn
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: post
+            RestApiId:
+              Ref: ES21sqsQueueApiGateway
+  ES21sqsQueueLambdaConsumer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda
+      Handler: consumer.entrypoint
+      Runtime: python3.8
+      MemorySize: 1280
+      Timeout: 900
+      Environment: 
+        Variables:
+          StringParameter: !Ref StringParameter
+          QueueName: !Ref QueueName
+          AccountId: !Ref AccountId
+      Role: !GetAtt ES21sqsQueueLambdaIamRole.Arn
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+            RestApiId:
+              Ref: ES21sqsQueueApiGateway
+  ES21sqsQueueLambdaIamRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:GetQueueUrl 
+                  - sqs:SendMessage
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                Resource:
+                  - !GetAtt ES21sqsQueue.Arn
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+  ES21sqsQueueApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      OpenApiVersion: 3.0.2
+      CacheClusterEnabled: false
+      CacheClusterSize: '0.5'
+      Cors:
+        AllowMethods: "'POST, GET'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: GET
+          CachingEnabled: false
+          CacheTtlInSeconds: 300
+        - ResourcePath: /
+          HttpMethod: POST
+          CachingEnabled: false
+          CacheTtlInSeconds: 300
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+  UrlGet:
+    Description: Endpoint URL API REST
+    Value: !Sub https://${ES21sqsQueueApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+
+
