@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  Template CloudFormation - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
+Description: Esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
 
 # Promemoria:
 # Nel bucket sorgente deve essere attivata (manualmente) la proprietà EventBridgeConfiguration: EventBridgeEnabled: true

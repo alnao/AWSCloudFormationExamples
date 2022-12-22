@@ -1,9 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  Template CloudFormation (c) CherryBank - copia file csv da un bucket ad un altro anche se di un account diverso
-  Oltre a questo bisogna lanciare nel bucket di destinazione 
-  Riferimento https://stackoverflow.com/questions/64492864/aws-lambda-cross-account-policy-for-lambda-function-s3-to-s3-copy
+Description: Copia file csv da un bucket ad un altro anche se di un account diverso
+#  Oltre a questo bisogna lanciare nel bucket di destinazione una configurazione se su account diverso
+#  Riferimento https://stackoverflow.com/questions/64492864/aws-lambda-cross-account-policy-for-lambda-function-s3-to-s3-copy
 # modello caricato via SAM con il comando 
 # $ sam validate
 # $ sam build
@@ -30,7 +29,6 @@ Description: >
 # "arn:aws:s3:::uat-rds-rad/*"
 # ]
 # },
-
 Parameters:
   SFName:
     Type: String
@@ -73,10 +71,8 @@ Parameters:
   AwsRegion:
     Type: String
     Default: eu-west-1
-
 #Conditions:
 #  FlagCreateS3Bucket: !Equals [!Ref SourceBucket, ""]
-
 Resources:
   SourceBucketInput:
     Type: 'AWS::S3::Bucket'
@@ -92,7 +88,6 @@ Resources:
       NotificationConfiguration:
         EventBridgeConfiguration:
           EventBridgeEnabled: true
-
   EventfullBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -109,7 +104,6 @@ Resources:
            Resource: !Join ["",["arn:aws:s3:::",!Ref SourceBucket]]
            Principal: 
             AWS: !Sub arn:aws:iam::${RecieverAccountId}:root
-
   TriggerOnFilePutEventRule:
     Type: AWS::Events::Rule
     Properties:
@@ -129,7 +123,6 @@ Resources:
       Targets:
         - Id: id1
           Arn: !GetAtt StartLambdaNewFile.Arn
-
   PermissionForEventsToInvokeLambda: 
     Type: AWS::Lambda::Permission
     Properties: 

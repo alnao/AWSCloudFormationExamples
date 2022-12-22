@@ -1,6 +1,7 @@
 # AWSCloudFormationExamples
 AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
+
 ## Esempio07pyEsterno
 Bucket S3 con un trigger che esegue una lambda che stampa un log, questo esempio segue le best-practices infatti:
 - il trigger è generato con CloudEvent

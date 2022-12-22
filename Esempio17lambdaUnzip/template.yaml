@@ -1,8 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  Template CloudFormation - Esempio17lambdaUnzip 
-  template esegue una lambda che verifica un token JWT
+Description: template esegue una lambda che decoprime un file zip
 
 Parameters:
   SourceBucket:

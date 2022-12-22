@@ -1,6 +1,7 @@
 # AWSCloudFormationExamples
 AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
+
 ## Esempio17lambdaUnzip
 Lambda Python che esegue UNZIP di un file
 

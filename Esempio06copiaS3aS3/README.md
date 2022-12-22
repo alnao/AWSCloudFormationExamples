@@ -1,6 +1,7 @@
 # AWSCloudFormationExamples
 AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
+
 ## Esempio06copiaS3aS3
 Bucket S3 con un trigger che esegue la copia di un file da un bucket ad un altro.
 

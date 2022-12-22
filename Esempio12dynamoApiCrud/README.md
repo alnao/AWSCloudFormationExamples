@@ -1,6 +1,7 @@
 # AWSCloudFormationExamples
 AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
+
 ## Esempio12dynamoApiCrud
 Componenti di questo template
 - bucket di appoggio
