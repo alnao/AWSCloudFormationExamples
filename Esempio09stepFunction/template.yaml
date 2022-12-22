@@ -12,31 +12,31 @@ Parameters:
   SourceFilePattern:
     Type: String
     Description: Source Path solo il nome del file
-    Default: FILE_INPUT
+    Default: prova*
   SourceBucket:
     Type: String
     Description: Source Bucket
-    Default: sftp-simulator
+    Default: alberto-input
   SourcePath:
     Type: String
     Description: Source Path senza barre iniziali e finali
-    Default: input01
+    Default: INPUT
   StagingBucket:
     Type: String
     Description: Bucket destinazione
-    Default: staging
+    Default: alberto-input2
   StagingFilePathIN:
     Type: String
     Description: Source Path solo il nome del file
-    Default: ftp/INCOMING
+    Default: INPUT
   StagingFilePathOUT:
     Type: String
     Description: Source Path senza barre iniziali e finali
-    Default: application/OUTGOING
+    Default: OUTGOING
   DestBucket:
     Type: String
     Description: Bucket destinazione
-    Default: application-bucket
+    Default: bucket-invio
   DestFileName:
     Type: String
     Description: Source Path solo il nome del file

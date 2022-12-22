@@ -24,7 +24,7 @@ nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 
 ### Comando caricamento file csv
 ```
-aws s3 cp ./provaES12.csv s3://esempio12-dynamo-api-crud/es12.csv
+aws s3 cp ./provaES12.csv s3://alberto-input/INPUT/es12.csv
 sam logs --stack-name esempio12dynamoApiCrud
 ```
 ### Comandi per la rimozione

@@ -22,9 +22,10 @@ nota: --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND 
 
 ### Comando caricamento file csv
 ```
-aws s3 cp ../Esempio04s3NotificaLamba/prova.csv s3://sftp-simulator/input01/FILE_INPUT-1234.csv
-aws s3 ls s3://sftp-simulator/input01/
-aws s3 ls s3://application-bucket/folder/
+aws s3 cp ../Esempio04s3NotificaLamba/prova.csv s3://alberto-input/INPUT/prova1234.csv
+aws s3 ls s3://alberto-input2/INPUT/
+aws s3 ls s3://alberto-input2/OUTGOING/
+aws s3 ls s3://bucket-invio/folder/
 sam logs --stack-name esempio09complete
 ```
 ### Comandi per la rimozione

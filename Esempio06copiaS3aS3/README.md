@@ -36,7 +36,7 @@ Se si ottiene erore access denied perchè il bucket di destinazione è su un acc
 {
   "Effect": "Allow",
   "Principal": {
-    "AWS": "arn:aws:lambda:eu-west-1:740456629644:function:esempio06copias3as3-StartLambdaNewFile-ExwkPR4nV1lW"
+    "AWS": "arn:aws:lambda:eu-west-1:XXXXX:function:esempio06copias3as3-StartLambdaNewFile-XXXXXXXXX"
   },
   "Action": "*",
   "Resource": [

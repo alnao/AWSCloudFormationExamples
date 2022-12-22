@@ -10,7 +10,7 @@ def entrypoint(event, context):
 #    if event['detail-type'] != 'Object Created':
 #        return 
     #new_s3_key = event['detail']['object']['key']
-    new_s3_key = event['detail']['requestParameters']['key']
+    new_s3_key = event['detail']['object']['key']
     print("Key found: " + new_s3_key)
     file_name = os.path.basename(new_s3_key)
     print("Filename: " + file_name)

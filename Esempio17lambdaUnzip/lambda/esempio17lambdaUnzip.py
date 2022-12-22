@@ -13,7 +13,7 @@ def entrypoint(event, context):
     s3_resource = resource('s3')
     sourcebucketname = os.environ['SourceBucket']
     destination_bucket = s3_resource.Bucket(  os.environ['DestBucket']) 
-    s3_key = event['detail']['requestParameters']['key'] # event['Records'][0]['s3']['object']['key']
+    s3_key = event['detail']['object']['key'] # event['Records'][0]['s3']['object']['key']
     file_name = os.path.basename(s3_key)
     print("Esempio17lambdaUnzip Filename: " + file_name)
     if file_name=="":

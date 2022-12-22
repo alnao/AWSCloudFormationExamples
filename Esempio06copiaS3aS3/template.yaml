@@ -43,7 +43,7 @@ Parameters:
   SourceBucket:
     Type: String
     Description: Source Bucket
-    Default: bucket-invio
+    Default: z-formazionees6-invio
   SourcePath:
     Type: String
     Description: Source Path
@@ -51,7 +51,7 @@ Parameters:
   DestBucket:
     Type: String
     Description: Dest Bucket
-    Default: bucket-destinazione
+    Default: uat-rds-rad #bucket-destinazione
 #  DestPath:
 #    Type: String
 #    Description: DestPath
@@ -114,18 +114,16 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       EventBusName: default
-      EventPattern:
+      EventPattern: 
         source: 
           - "aws.s3"
+        detail-type:
+          - "Object Created"
         detail: 
-          eventSource:
-            - 's3.amazonaws.com'
-          eventName:
-            - 'CopyObject'
-            - 'PutObject'
-          requestParameters:
-            bucketName:
+          bucket:
+            name: 
               - !Ref SourceBucket
+          object:
             key:
               - prefix: !Ref SourcePath
       Targets:
@@ -159,8 +157,8 @@ Resources:
           # lambda function to copy file from 1 s3 to another s3
           def lambda_handler(event, context):
             print("Esecuzione" + json.dumps(event) )
-            source_bucket = event['detail']['requestParameters']['bucketName']
-            source_key = event['detail']['requestParameters']['key']
+            source_bucket = event['detail']['bucket']['name']
+            source_key = event['detail']['object']['key']
             copy_source = {'Bucket': source_bucket,'Key': source_key }
             #specify destination bucket and target key
             destination_bucket_name=os.environ['CDestBucket']

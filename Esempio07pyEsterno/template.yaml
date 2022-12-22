@@ -10,18 +10,18 @@ Parameters:
     Type: String
     Description: Source Bucket 1
     Default: alberto-input
-  SourceBucket2:
-    Type: String
-    Description: Source Bucket 2
-    Default: alberto-input2
-  TargetBucket:
-    Type: String
-    Description: Bucket destinazione
-    Default: bucket-invio
+#  SourceBucket2:
+#    Type: String
+#    Description: Source Bucket 2
+#    Default: alberto-input2
+#  TargetBucket:
+#    Type: String
+#    Description: Bucket destinazione
+#    Default: bucket-invio
   SourcePath:
     Type: String
     Description: Source Path
-    Default: INPUT07
+    Default: INPUT
 
 Resources:
   ExternalPyLambda:
@@ -35,8 +35,8 @@ Resources:
       Environment: 
         Variables:
           SOURCE_BUCKET_1: !Ref SourceBucket1
-          SOURCE_BUCKET_2: !Ref SourceBucket2
-          TARGET_BUCKET: !Ref TargetBucket
+#          SOURCE_BUCKET_2: !Ref SourceBucket2
+#          TARGET_BUCKET: !Ref TargetBucket
       Policies:
         - Statement:
           - Sid: AllowS3BucketReadWriteAccess
@@ -48,18 +48,16 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       EventBusName: default
-      EventPattern:
+      EventPattern: 
         source: 
           - "aws.s3"
+        detail-type:
+          - "Object Created"
         detail: 
-          eventSource:
-            - 's3.amazonaws.com'
-          eventName:
-            - 'CopyObject'
-            - 'PutObject'
-          requestParameters:
-            bucketName:
+          bucket:
+            name: 
               - !Ref SourceBucket1
+          object:
             key:
               - prefix: !Ref SourcePath
       Targets:
@@ -111,15 +109,15 @@ Resources:
                 - - 'arn:aws:s3:::'
                   - !Ref SourceBucket1
                   - '/*'
-              - Effect: Allow
-                Action:
-                  - 's3:PutObjectAcl'
-                  - 's3:PutObject'
-                Resource: !Join
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref TargetBucket
-                  - '/*'
+#              - Effect: Allow
+#                Action:
+#                  - 's3:PutObjectAcl'
+#                  - 's3:PutObject'
+#                Resource: !Join
+#                - ''
+#                - - 'arn:aws:s3:::'
+#                  - !Ref TargetBucket
+#                  - '/*'
               - Effect: Allow
                 Action:
                   - 'logs:CreateLogGroup'

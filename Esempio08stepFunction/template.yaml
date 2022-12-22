@@ -51,7 +51,7 @@ Resources:
   Esempio08Trigger:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ../Trigger/template.yaml
+      Location: ./Trigger/template.yaml
       Parameters:
         SourceBucket: !Ref SourceBucket
         SourcePath: !Ref SourcePath
@@ -62,7 +62,7 @@ Resources:
   Esempio08Application:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ../StateMachine/template.yaml
+      Location: ./StateMachine/template.yaml
       Parameters:
         SFName: Esempio08StateMachine
         SourceBucket: !Ref SourceBucket

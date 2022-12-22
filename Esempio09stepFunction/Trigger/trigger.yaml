@@ -35,20 +35,16 @@ Resources:
     Properties:
       EventBusName: default
       State: !Ref State
-      EventPattern:
+      EventPattern: 
         source: 
           - "aws.s3"
+        detail-type:
+          - "Object Created"
         detail: 
-          eventSource:
-            - 's3.amazonaws.com'
-          eventName:
-            - 'CopyObject'
-            - 'PutObject'
-            - 'PutObjectAcl'
-            - 'CompleteMultipartUpload'
-          requestParameters:
-            bucketName:
+          bucket:
+            name: 
               - !Ref SourceBucket
+          object:
             key:
               - prefix: !Ref SourcePath
       Targets:

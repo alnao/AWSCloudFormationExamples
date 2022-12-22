@@ -31,14 +31,14 @@ Parameters:
   BucketName:
     Type: String
     Description: Nome del bucket
-    Default: esempio12-dynamo-api-crud
+    Default: alberto-input
   DynamoName:
     Type: String
     Description: Nome del DB dynamo
-    Default: esempio12dynamoApiCrud
+    Default: tabellaDynamoEs12
   FilePattern:
     Type: String
-    Default: es12
+    Default: INPUT
   Stage:
     Type: String
     Default: dev
@@ -77,18 +77,16 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       EventBusName: default
-      EventPattern:
+      EventPattern: 
         source: 
           - "aws.s3"
+        detail-type:
+          - "Object Created"
         detail: 
-          eventSource:
-            - 's3.amazonaws.com'
-          eventName:
-            - 'CopyObject'
-            - 'PutObject'
-          requestParameters:
-            bucketName:
+          bucket:
+            name: 
               - !Ref BucketName
+          object:
             key:
               - prefix: !Ref FilePattern
       Targets:
