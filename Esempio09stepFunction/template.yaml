@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: template che segue i passi per ogni file caricato filtro per pattern, copia staging in, cancella originale, copia staging out e invio a bucket applicativo
+Description: Es09 trigger con filtro per pattern e step function per copia staging in, cancella originale, copia staging out e invio a bucket applicativo
 
 Parameters:
   SourceFilePattern:

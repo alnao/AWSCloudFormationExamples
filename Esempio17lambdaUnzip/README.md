@@ -3,7 +3,7 @@ AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
 
 ## Esempio17lambdaUnzip
-Lambda Python che esegue UNZIP di un file
+Trigger su BucketS3 che esegue una lambda Python che UNZIP del file su un altro bucket
 
 ### Comandi per la creazione
 

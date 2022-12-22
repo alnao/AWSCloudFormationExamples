@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: bucket con trigger, dynamoDB, lambda di caricamento di csv in dynamo, api rest CRUD con py inline
+Description: Es12 bucket con trigger, dynamoDB, lambda di caricamento di csv in dynamo, api rest CRUD con py inline
 
 # bucket di appoggio
 # trigger sul bucket per lanciare la lambda

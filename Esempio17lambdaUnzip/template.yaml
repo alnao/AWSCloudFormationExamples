@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: template esegue una lambda che decoprime un file zip
+Description: Es17 trigger su bucket che segue lambda che decoprime un file zip
 
 Parameters:
   SourceBucket:

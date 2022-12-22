@@ -3,8 +3,7 @@ AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
 
 ## Esempio09stepFunction
-Bucket S3 con un trigger che esegue una lambda che esegue una step function se il file match con un pattern.
-La step function esegue i passi:
+Bucket S3 con un trigger che esegue una lambda che esegue una step function se il file match con un pattern. La step function esegue i passi:
 - copia il file dalla sorgente ad una staging/IN
 - elimina il file sorgente
 - copia il file dalla staging/IN alla staging/OUT

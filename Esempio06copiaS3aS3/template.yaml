@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Copia file csv da un bucket ad un altro anche se di un account diverso
+Description: Es06 Copia file csv da un bucket ad un altro anche se di un account diverso
 #  Oltre a questo bisogna lanciare nel bucket di destinazione una configurazione se su account diverso
 #  Riferimento https://stackoverflow.com/questions/64492864/aws-lambda-cross-account-policy-for-lambda-function-s3-to-s3-copy
 # modello caricato via SAM con il comando 

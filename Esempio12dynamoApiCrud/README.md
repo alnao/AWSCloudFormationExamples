@@ -4,14 +4,15 @@ AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
 ## Esempio12dynamoApiCrud
 Componenti di questo template
+- tabella DynamoDB
 - bucket di appoggio
 - trigger sul bucket per lanciare la lambda
-- lambda di caricamento da file csv a dynamo
-- tabella Dynamo
+- lambda che segue caricamento del file csv in tabella dynamoDB
 - permessi della lambda caricamento di accedere a S3 e Dynamo
 - rest api get per avere l'elenco completo (scan della dynamo)
 - rest api post per salvare un elemento (post/put)
 - rest api delete per cancellare un elemento
+notare che cancellando il tempalte si cancella anche la tabella DynamoDB e tutto il contenuto.
 
 ### Comandi per la creazione con nome parametrico
 ```

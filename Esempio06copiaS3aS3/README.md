@@ -3,11 +3,8 @@ AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
 
 ## Esempio06copiaS3aS3
-Bucket S3 con un trigger che esegue la copia di un file da un bucket ad un altro.
-
-
-Questo è solo un esempio e non segue le best-practices infatti:
-- il trigger è generato con NotificationConfiguration di S3 (dall'esempio 07 sarà usato CloudEvent)
+Bucket S3 con un trigger che esegue la copia di un file da un bucket ad un altro. Questo è solo un esempio e non segue le best-practices infatti:
+- il trigger è generato con NotificationConfiguration di S3 (dall'esempio 07 è usato CloudEvent)
 - il codice python è dentro il modello yaml  (dall'esempio 07 saranno usati py esterni)
 
 ### Comandi per la creazione con nome parametrico

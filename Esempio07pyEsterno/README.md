@@ -4,7 +4,7 @@ AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
 ## Esempio07pyEsterno
 Bucket S3 con un trigger che esegue una lambda che stampa un log, questo esempio segue le best-practices infatti:
-- il trigger è generato con CloudEvent
+- il trigger è generato con CloudEvent (nuova versione senza cloudTrail)
 - il codice python è esterno in file py separto dal modello yaml
 
 ### Comandi per la creazione con nome parametrico
