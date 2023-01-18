@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Template che crea un AGS, ALB (2x EC2) con apache/php e un RDS mysql
+Description: Template che crea una VPC e un VPN endpoint
 #SEE
 # template ufficiali presi da https://github.com/aws-samples/ecs-refarch-cloudformation
 # VPC: https://s3.amazonaws.com/ecs-refarch-cloudformation/infrastructure/vpc.yaml
@@ -98,10 +98,10 @@ Resources:
         PublicSubnet2CIDR: !Ref CidrBlockSubnetB # "10.84.2.0/24"
         PrivateSubnet1CIDR: !Ref CidrBlockSubnetC # "10.84.3.0/24"
         PrivateSubnet2CIDR: !Ref CidrBlockSubnetD # "10.84.4.0/24"
-  VPCendpoint:
+  VPNendpoint:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: "./vpcendpoint.yaml"
+      TemplateURL: "./vpnendpoint.yaml"
       Parameters:
         VPCid: !GetAtt VPC.Outputs.VPC
         SAMLProviderArn: !Ref SAMLProviderArn
