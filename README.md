@@ -38,6 +38,8 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/wordpress/aws)
 - 18: template di istanza EC2 con parametri recuperati dal SSM Parameter Store
 - 19: template di istanza EC2 evolutiva del 18 con definizione di matrice mappins per dimensione dell'istanza
 - 20: template di istanze EC2 evolutiva del 19 con condition: creazione di un volume in produzione e non in dev
+- 21: template che crea un coda con il Servizio SQS e due semplici lambda in PY per leggere e scrivere nella coda
+- 22: templlate che crea una VPC e un VPNendpoint da usare con il client da desktop
 
 ## See
 Tutti questi esempi sono spiegati nel sito [alnao.it](https://www.alnao.it/wordpress/aws/) nella pagina di AWS nella sottosezione dedicata ad CloudFormation.
