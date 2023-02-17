@@ -41,6 +41,7 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/wordpress/aws)
 - 21: template che crea un coda con il Servizio SQS e due semplici lambda in PY per leggere e scrivere nella coda
 - 22: template che crea una VPC e un VPNendpoint da usare con il client da desktop
 - 23: template che crea una VPC, un RDS MySql e una EC2, nella EC2 viene installato in automatico un Wordpress
+- 24: template che crea una VPC, un EFS e una istanza EC2 che monta il volume in automatico nel user-data
 
 ## See
 Tutti questi esempi sono spiegati nel sito [alnao.it](https://www.alnao.it/wordpress/aws/) nella pagina di AWS nella sottosezione dedicata ad CloudFormation.
