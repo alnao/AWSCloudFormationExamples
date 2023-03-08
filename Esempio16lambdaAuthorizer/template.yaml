@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Template CloudFormation - Esempio16lambdaAuthorizer 
+
+Parameters:
+  JwtKey:
+    Type: String
+    Description: Jwt Key
+    Default: alberto-bello.1234
+  Stage:
+    Type: String
+    Default: dev
+
+Resources:
+  Esempio16lambdaAuthorizerIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+  Esempio16lambdaAuthorizerApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      OpenApiVersion: 3.0.2
+      CacheClusterEnabled: false
+      CacheClusterSize: '0.5'
+      Cors:
+        AllowMethods: "'POST, GET'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: GET
+          CachingEnabled: false
+          CacheTtlInSeconds: 300
+#see https://aws.amazon.com/it/blogs/compute/announcing-nested-applications-for-aws-sam-and-the-aws-serverless-application-repository/
+      Auth:
+        DefaultAuthorizer: MyLambdaRequestAuthorizer
+        Authorizers:
+          MyLambdaRequestAuthorizer:
+            FunctionPayloadType: REQUEST
+            FunctionArn: !GetAtt Esempio16lambdaAuthorizerLambdaAuth.Arn
+            Identity:
+              Headers:
+                - Authorization
+  Esempio16lambdaAuthorizerLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt Esempio16lambdaAuthorizerIAMRole.Arn
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+            RestApiId:
+              Ref: Esempio16lambdaAuthorizerApiGateway
+      CodeUri: lambda
+      Handler: example.entrypoint
+      Runtime: python3.8
+      MemorySize: 512
+      Timeout: 900
+      Environment: 
+        Variables:
+          JwtKey: !Ref JwtKey
+
+
+  Esempio16lambdaAuthorizerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref Esempio16lambdaAuthorizerLambdaAuth
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Esempio16lambdaAuthorizerApiGateway}/*/*
+      #!GetAtt Esempio16lambdaAuthorizerApiGateway.Arn #Requested attribute Arn does not exist in schema for AWS::ApiGateway::RestApi
+  Esempio16lambdaAuthorizerLambdaAuth: 
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.8
+      Role: !GetAtt Esempio16lambdaAuthorizerIAMRole.Arn
+      CodeUri: lambda
+      Handler: authJwt.entrypoint
+      Runtime: python3.8
+      MemorySize: 512
+      Timeout: 900
+      Environment: 
+        Variables:
+          JwtKey: !Ref JwtKey
+      Description: Esempio16lambdaAuthorizerLambdaAuth
+#Il template si basa su “AWS::Serverless::Api” e non su “AWS::ApiGateway::RestApi”
+  #see https://gist.github.com/carceneaux/7a5ef7439a7dc514b8da61fe929df5ca
+#  Esempio16lambdaAuthorizerPermission:
+#    Type: AWS::Lambda::Permission
+#    Properties:
+#      Action: lambda:InvokeFunction
+#      FunctionName: !GetAtt Esempio16lambdaAuthorizerLambdaAuth.Arn
+#      Principal: apigateway.amazonaws.com
+#      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Esempio16lambdaAuthorizerApiGateway}/*/*
+#  #https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html
+#  Esempio16lambdaAuthorizerAPIAuthorizer:
+#    Type: AWS::ApiGateway::Authorizer
+#    Properties:
+#      Name: !Sub ${AWS::StackName}-Esempio16lambdaAuthorizerLambdaAuth
+#      RestApiId: !Ref Esempio16lambdaAuthorizerApiGateway
+#      Type: REQUEST #The authorizer type. Valid values are TOKEN for a Lambda function using a single authorization token submitted in a custom header, REQUEST for a Lambda function using incoming request parameters, and COGNITO_USER_POOLS for using an Amazon Cognito user pool.
+#      AuthorizerUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Esempio16lambdaAuthorizerLambdaAuth.Arn}/invocations
+#      AuthorizerResultTtlInSeconds: 0
+#      IdentitySource: 'method.request.header.authorization' #'method.request.header.authorizationtoken, method.request.header.origin'
+
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+  UrlGet:
+    Description: Endpoint URL API REST
+    Value: !Sub https://${Esempio16lambdaAuthorizerApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}

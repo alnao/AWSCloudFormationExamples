@@ -33,7 +33,8 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/wordpress/aws)
 - 13: lambda(Py) per gestire file (leggere e scrivere)
 - 14: avvio istanze EC2
 - 15: lambda in Java-maven
-- 16: lambda(Py) esposta con API che valida un token Jwt
+- 16: lambda(Py) esposta con API Gateway che valida un token Jwt internamente
+- 16b: lambda(Py) esposta con API Gateway e Lambda Authorizer che valida un token Jwt
 - 17: lambda(Py) che esegue unzip di un file da un bucket ad un altro
 - 18: template di istanza EC2 con parametri recuperati dal SSM Parameter Store
 - 19: template di istanza EC2 evolutiva del 18 con definizione di matrice mappins per dimensione dell'istanza
