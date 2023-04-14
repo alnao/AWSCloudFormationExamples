@@ -69,8 +69,8 @@ Parameters:
     Default: eu-west-1a
   EC2Ami:
     Type: String
-    Default: ami-06d94a781b544c133 #questa AMI è ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20230208
-    #vecchia versione con linux AWS: ami-015232c01a82b847b 
+    Default: ami-015232c01a82b847b  
+    # ami-06d94a781b544c133 questa AMI è ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20230208
   InstanceType:
     Type: String
     Default: 't2.micro'

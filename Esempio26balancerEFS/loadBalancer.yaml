@@ -291,5 +291,5 @@ Outputs:
         - !GetAtt 
           - ApplicationLoadBalancer
           - DNSName
-        - /wordpress
-    Description: WordPress Website
+        - /hostname.html
+    Description: Website
