@@ -9,6 +9,7 @@ Template che che una infrattuttura per caricare un file binario in un BukcetS3 p
 - Tabella Dynamo dove devono essere censiti gli utenti e file che sono abilitati a caricare
 - Tabella Dynamo come registro di tutti i files caricati
 - SNS per l'invio di notifiche quando un file viene caricato
+![Esempio27uploadBinaryFileS3](https://www.alnao.it/wordpress/wp-content/uploads/2023/05/awsS3uploaderAppDiagramsNet.drawio.png)
 
 ### Comandi per la creazione
 
