@@ -43,6 +43,15 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/wordpress/aws)
 - 22: template che crea una VPC e un VPNendpoint da usare con il client da desktop
 - 23: template che crea una VPC, un RDS MySql e una EC2, nella EC2 viene installato in automatico un Wordpress
 - 24: template che crea una VPC, un EFS e una istanza EC2 che monta il volume in automatico nel user-data
+- 25: template che crea un bilanciatore con istanze che eseguono un Wodpress per ciascuna
+- 26: template che crea un bilanciatere tra istanze EC2 che caricano un unico EFS e un unico RDS
+- 27: template che che una infrattuttura per caricare un file binario in un BukcetS3 partendo da una pagina web con i componenti
+  - ApiGateway per l'esposizione delle API con le configurazioni del CORS (see OPTIONS-CORS)
+  - Lambda Authorizer per la verifica del token JWT
+  - Lambda che carica il file decodificando i dati in arrivo dalla request
+  - Tabella Dynamo dove devono essere censiti gli utenti e file che sono abilitati a caricare
+  - Tabella Dynamo come registro di tutti i files caricati
+  - SNS per l'invio di notifiche quando un file viene caricato
 
 ## See
 Tutti questi esempi sono spiegati nel sito [alnao.it](https://www.alnao.it/wordpress/aws/) nella pagina di AWS nella sottosezione dedicata ad CloudFormation.
