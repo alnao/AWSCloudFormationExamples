@@ -1,5 +1,23 @@
+<p align="center">
+   <a href="https://www.alnao.it/">
+      <img src="https://img.shields.io/badge/alnao-.it-blue?logo=amazoncloudwatch&logoColor=A6C9E2" height="65px;"  />
+   </a>
+   <br />
+      <a href="https://www.alnao.it/aws/">
+        <img src="https://img.shields.io/badge/AWS-%23FF9900?style=plastic&logo=AmazonAWS&logoColor=black" style="height:28px;" />
+        <img src="https://img.shields.io/badge/Ec2-%23FF9900?style=plastic&logo=amazon-ec2&logoColor=black" style="height:28px;" />
+        <img src="https://img.shields.io/badge/Lambda-%23FF9900?style=plastic&logo=AWSlambda&logoColor=black" style="height:28px;" />
+        <img src="https://img.shields.io/badge/S3-%23569A31?style=plastic&logo=amazon-s3&logoColor=black" style="height:28px;" />
+        <img src="https://img.shields.io/badge/RDS-%23527FFF?style=plastic&logo=amazon-rds&logoColor=black" style="height:28px;" />
+        <img src="https://img.shields.io/badge/DynamoDB-%23527FFF?style=plastic&logo=amazon-DynamoDB&logoColor=black" style="height:28px;" />
+        <img src="https://img.shields.io/badge/CloudWatch-%23FF4F8B?style=plastic&logo=amazon-cloudwatch&logoColor=black" style="height:28px;" />
+        <img src="https://img.shields.io/badge/API Gateway-%23FF4F8B?style=plastic&logo=amazon-API-Gateway&logoColor=black" style="height:28px;" />
+        <img src="https://img.shields.io/badge/SQS-%23FF4F8B?style=plastic&logo=amazon-sqs&logoColor=black" style="height:28px;" />
+      </a>
+</p>
+
 # AWSCloudFormationExamples
-AWS CloudFormation Examples by [AlNao](https://www.alnao.it/wordpress/aws)
+AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao.it/aws](https://www.alnao.it/aws)
 
 ## Prerequisiti
 - Un account AWS attivo
@@ -10,13 +28,16 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/wordpress/aws)
 - Per ogni template, se non indicato diversamente, i comandi da eseguire per eseguire il deploy sono:
   - ```sam validate```
   - ```sam build```
-  - ```sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input```
   - ```sam deploy --template-file .\packagedV1.yaml --stack-name esempio00name --capabilities CAPABILITY_IAM```
+- Se si tratta di template con più files tra build e deploy è indispensabile eseguire il comando di package:
+  - ```sam package --output-template-file <packagedV1.yaml> --s3-prefix <repository-path> --s3-bucket <bucket-name>```
 
-## Esempi
-- 01: creazione bucket semplice
-- 02: creazione bucket con abilitazione a sito esposto (senza CloudFront)
-- 03: creazione bucket e parametri modificabili da riga di comando o console
+## Esempi di template CloudFormation
+- 01: Creazione di un bucket semplice bucket S3 con il nome parametrico.
+
+## Esempi di template CloudFormation in fase di revisione
+- 02: creazione bucket pubblicamento accessibile e sito esposto senza CloudFront
+- 03: creazione bucket e gestione della BucketPolicy,
 - 04: lambda(Py) che viene avviata al caricamento di un file in un S3, la lambda scrive solo un log
 - 05: lambsa(Py) che da un file CSV caricato su bucket S3 carica una tabella Dynamo, la prima riga del CSV è l'elenco dei campi del tracciato (Dynamo non è schema-less)
 - 06: lambda(Py) che copia in un file da un bucket ad un altro con trigger nel primo

@@ -1,34 +1,21 @@
-
+#Intestazione con la descrizione
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudFormation s3 bucket
+Description: Creazione di un bucket semplice bucket S3 con il nome parametrico
+#blocco Parametri
+Parameters:
+  NomeBucket:
+    Type: String
+    Default: esempio01buckets3
+    Description: Nome del bucket
+    MinLength: 9
+#blocco Risorse
 Resources:
-  S3Bucket:
+  S3Bucket: #see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
     Type: 'AWS::S3::Bucket'
     Properties:
-      AccessControl: PublicRead
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      BucketName: esempio01buckets3
-      MetricsConfigurations:
-        - Id: EntireBucket
-      WebsiteConfiguration:
-        IndexDocument: index.html
-        ErrorDocument: error.html
-    DeletionPolicy: Retain
+      BucketName: !Ref NomeBucket
+#blocco Outputs
 Outputs:
-  WebsiteURL:
-    Value: !GetAtt
-      - S3Bucket
-      - WebsiteURL
-    Description: URL for website hosted on S3
-  S3BucketSecureURL:
-    Value: !Join
-      - ''
-      - - 'https://'
-        - !GetAtt
-          - S3Bucket
-          - DomainName
-    Description: Name of S3 bucket to hold website content
+  S3Bucket:
+    Value: !GetAtt S3Bucket.Arn
+    Description: S3 bucket ARN
