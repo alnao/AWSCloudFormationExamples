@@ -33,10 +33,10 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
   - ```sam package --output-template-file <packagedV1.yaml> --s3-prefix <repository-path> --s3-bucket <bucket-name>```
 
 ## Esempi di template CloudFormation
-- 01: Creazione di un bucket semplice bucket S3 con il nome parametrico.
+- 01: Creazione di un semplice bucket S3 con il nome parametrico.
 
 ## Esempi di template CloudFormation in fase di revisione
-- 02: creazione bucket pubblicamento accessibile e sito esposto senza CloudFront
+- 02: creazione bucket pubblicamente accessibile e sito esposto senza CloudFront
 - 03: creazione bucket e gestione della BucketPolicy,
 - 04: lambda(Py) che viene avviata al caricamento di un file in un S3, la lambda scrive solo un log
 - 05: lambsa(Py) che da un file CSV caricato su bucket S3 carica una tabella Dynamo, la prima riga del CSV è l'elenco dei campi del tracciato (Dynamo non è schema-less)
