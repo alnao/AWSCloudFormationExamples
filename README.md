@@ -75,5 +75,4 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
   - SNS per l'invio di notifiche quando un file viene caricato
 
 ## See
-Tutti questi esempi sono spiegati nel sito [alnao.it](https://www.alnao.it/wordpress/aws/) nella pagina di AWS nella sottosezione dedicata ad CloudFormation.
-
+Tutti questi esempi sono spiegati nel sito [alnao.it](https://www.alnao.it/wordpress/aws/) nella pagina di AWS nella sottosezione dedicata ad CloudFormation.#
