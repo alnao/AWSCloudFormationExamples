@@ -34,10 +34,10 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 
 ## Esempi di template CloudFormation
 - 01: Creazione di un semplice bucket S3 con il nome parametrico.
+- 02: Creazione di una istanza EC2 con un web-server (con user-data, security group, VPC e subnet specifica)
 
 ## Esempi di template CloudFormation in fase di revisione
-- 02: creazione bucket pubblicamente accessibile e sito esposto senza CloudFront
-- 03: creazione bucket e gestione della BucketPolicy,
+- 03: creazione bucket pubblicamente accessibile e sito esposto senza CloudFront
 - 04: lambda(Py) che viene avviata al caricamento di un file in un S3, la lambda scrive solo un log
 - 05: lambsa(Py) che da un file CSV caricato su bucket S3 carica una tabella Dynamo, la prima riga del CSV è l'elenco dei campi del tracciato (Dynamo non è schema-less)
 - 06: lambda(Py) che copia in un file da un bucket ad un altro con trigger nel primo
@@ -52,7 +52,6 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 11: lambda(Py) esposta con API che ritorna un json di esempio
 - 12: CRUD Api su Tabella Dynamo (schema-less)
 - 13: lambda(Py) per gestire file (leggere e scrivere)
-- 14: avvio istanze EC2
 - 15: lambda in Java-maven
 - 16: lambda(Py) esposta con API Gateway che valida un token Jwt internamente
 - 16b: lambda(Py) esposta con API Gateway e Lambda Authorizer che valida un token Jwt

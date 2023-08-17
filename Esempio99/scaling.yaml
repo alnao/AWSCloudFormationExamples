@@ -1,0 +1,350 @@
+# see TemplateURL: https://s3.amazonaws.com/ecs-refarch-cloudformation/services/product-service/service.yaml
+# copiato da https://s3.amazonaws.com/ecs-refarch-cloudformation/services/product-service/service.yaml
+# ma aggiunti output che mi servono nel resto dei template
+Description: VPC Lamp AutoScalingGroup e LaunchConfiguration
+
+Parameters:
+  VPCid:
+    Type: AWS::EC2::VPC::Id
+    Description: Choose which VPC the Application should be deployed to
+  PrivateSubnet1:
+    Description: PrivateSubnet1
+    Type: String
+  PrivateSubnet2:
+    Description: PrivateSubnet2
+    Type: String
+  WebServerCapacity:
+    Description: WebServerCapacity
+    Type: String
+  WebServerCapacityMIN:
+    Description: WebServerCapacityMIN
+    Type: String
+  WebServerCapacityMAX:
+    Description: WebServerCapacityMAX
+    Type: String
+  TargetGroup:
+    Description: A reference to a port 80 listener
+    Type: String
+  LAMPesMySQLDatabaseEndpointAddress:
+    Description: LAMPesMySQLDatabaseEndpointAddress
+    Type: String
+  DBUser:
+    Description: DBUser
+    Type: String
+  DBPassword:
+    Description: DBPassword
+    Type: String
+  InstanceType:
+    Description: InstanceType
+    Type: String
+  KeyName:
+    Description: KeyName
+    Type: String
+  LoadBalancerSecurityGroup:
+    Description: KeyName
+    Type: String
+  SSHLocation:
+    Description: KeyName
+    Type: String
+  
+
+Mappings:
+  AWSInstanceType2Arch:
+    t1.micro:
+      Arch: HVM64
+    t2.micro:
+      Arch: HVM64
+    t2.small:
+      Arch: HVM64
+  AWSInstanceType2NATArch:
+    t1.micro:
+      Arch: NATHVM64
+    t2.micro:
+      Arch: NATHVM64
+    t2.small:
+      Arch: NATHVM64
+  AWSRegionArch2AMI:
+    eu-west-1:
+      HVM64: ami-015232c01a82b847b
+    eu-west-2:
+      HVM64: ami-0765d48d7e15beb93
+    eu-west-3:
+      HVM64: ami-0caf07637eda19d9c
+
+Resources:
+  LAMPesASG:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      VPCZoneIdentifier: 
+      - !Ref PrivateSubnet1 #!GetAtt LAMPesVPC.Outputs.PrivateSubnet1
+      - !Ref PrivateSubnet2 #!GetAtt LAMPesVPC.Outputs.PrivateSubnet2
+      LaunchConfigurationName: !Ref LAMPesLaunchConfig
+      MinSize: !Ref WebServerCapacityMIN #'1'
+      MaxSize: !Ref WebServerCapacityMAX #'2'
+      DesiredCapacity: !Ref WebServerCapacity
+      TargetGroupARNs:
+        - !GetAtt !Ref TargetGroup # LAMPesALB.Outputs.TargetGroup
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT20M
+        Count: !Ref WebServerCapacity
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: '1'
+        MaxBatchSize: '1'
+        PauseTime: PT20M
+        WaitOnResourceSignals: 'true'
+      Tags:
+      - Key: "Name"
+        Value: !Ref AWS::StackName #"LAMPesASG" 
+  LAMPesLaunchConfig:
+    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    Metadata:
+      Comment1: Configure the bootstrap helpers to install the Apache Web Server and PHP
+      config:
+        packages:
+          yum:
+            httpd: []
+            php: []
+            php-mysql: []
+        files:
+          /var/www/html/index.php:
+            content: !Join 
+              - ''
+              - - |
+                  <html>
+                - |2
+                    <head>
+                - |2
+                      <title>AWS CloudFormation PHP Sample</title>
+                - |2
+                      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+                - |2
+                    </head>
+                - |2
+                    <body>
+                - |2
+                      <h1>Welcome to the AWS CloudFormation PHP Sample</h1>
+                - |2
+                      <p/>
+                - |2
+                      <?php
+                - |2
+                        // Print out the current data and tie
+                - |2
+                        print "The Current Date and Time is: <br/>";
+                - |2
+                        print date("g:i A l, F j Y.");
+                - |2
+                      ?>
+                - |2
+                      <p/>
+                - |2
+                      <?php
+                - |2
+                        // Setup a handle for CURL
+                - |2
+                        $curl_handle=curl_init();
+                - |2
+                        curl_setopt($curl_handle,CURLOPT_CONNECTTIMEOUT,2);
+                - |2
+                        curl_setopt($curl_handle,CURLOPT_RETURNTRANSFER,1);
+                - |2
+                        // Get the hostname of the intance from the instance metadata
+                - |2
+                        curl_setopt($curl_handle,CURLOPT_URL,'http://169.254.169.254/latest/meta-data/public-hostname');
+                - |2
+                        $hostname = curl_exec($curl_handle);
+                - |2
+                        if (empty($hostname))
+                - |2
+                        {
+                - |2
+                          print "Sorry, for some reason, we got no hostname back <br />";
+                - |2
+                        }
+                - |2
+                        else
+                - |2
+                        {
+                - |2
+                          print "Server = " . $hostname . "<br />";
+                - |2
+                        }
+                - |2
+                        // Get the instance-id of the intance from the instance metadata
+                - |2
+                        curl_setopt($curl_handle,CURLOPT_URL,'http://169.254.169.254/latest/meta-data/instance-id');
+                - |2
+                        $instanceid = curl_exec($curl_handle);
+                - |2
+                        if (empty($instanceid))
+                - |2
+                        {
+                - |2
+                          print "Sorry, for some reason, we got no instance id back <br />";
+                - |2
+                        }
+                - |2
+                        else
+                - |2
+                        {
+                - |2
+                          print "EC2 instance-id = " . $instanceid . "<br />";
+                - |2
+                        }
+                - '      $Database   = "'
+                - !Ref LAMPesMySQLDatabaseEndpointAddress
+#                - !GetAtt 
+#                  - LAMPesMySQLDatabase
+#                  - Endpoint.Address
+                - |
+                  ";
+                - '      $DBUser     = "'
+                - !Ref DBUser
+                - |
+                  ";
+                - '      $DBPassword = "'
+                - !Ref DBPassword
+                - |
+                  ";
+                - |2
+                        print "Database = " . $Database . "<br />";
+                - |2
+                        $dbconnection = mysql_connect($Database, $DBUser, $DBPassword)
+                - |2
+                                        or die("Could not connect: " . mysql_error());
+                - |2
+                        print ("Connected to $Database successfully");
+                - |2
+                        mysql_close($dbconnection);
+                - |2
+                      ?>
+                - |2
+                      <h2>PHP Information</h2>
+                - |2
+                      <p/>
+                - |2
+                      <?php
+                - |2
+                        phpinfo();
+                - |2
+                      ?>
+                - |2
+                    </body>
+                - |
+                  </html>
+            mode: '000600'
+            owner: apache
+            group: apache
+          /etc/cfn/cfn-hup.conf:
+            content: !Join 
+              - ''
+              - - |
+                  [main]
+                - stack=
+                - !Ref 'AWS::StackId'
+                - |+
+
+                - region=
+                - !Ref 'AWS::Region'
+                - |+
+
+            mode: '000400'
+            owner: root
+            group: root
+          /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+            content: !Join 
+              - ''
+              - - |
+                  [cfn-auto-reloader-hook]
+                - |
+                  triggers=post.update
+                - >
+                  path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
+                - 'action=/opt/aws/bin/cfn-init -v '
+                - '         --stack '
+                - !Ref 'AWS::StackName'
+                - '         --resource LAMPesLaunchConfig '
+                - '         --region '
+                - !Ref 'AWS::Region'
+                - |+
+
+                - |
+                  runas=root
+            mode: '000400'
+            owner: root
+            group: root
+        services:
+          sysvinit:
+            httpd:
+              enabled: 'true'
+              ensureRunning: 'true'
+            cfn-hup:
+              enabled: 'true'
+              ensureRunning: 'true'
+              files:
+                - /etc/cfn/cfn-hup.conf
+                - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+    Properties:
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - !Ref InstanceType
+          - Arch
+      InstanceType: !Ref InstanceType
+      SecurityGroups:
+        - !Ref LAMPesSG 
+      KeyName: !Ref KeyName
+      UserData: !Base64 
+        'Fn::Join':
+          - ''
+          - - |
+              #!/bin/bash -xe
+            - |
+              yum update -y aws-cfn-bootstrap
+            - |
+              # Install the files and packages from the metadata
+            - '/opt/aws/bin/cfn-init -v '
+            - '         --stack '
+            - !Ref 'AWS::StackName'
+            - '         --resource LAMPesLaunchConfig '
+            - '         --region '
+            - !Ref 'AWS::Region'
+            - |+
+
+            - |
+              # Signal the status from cfn-init
+            - '/opt/aws/bin/cfn-signal -e $? '
+            - '         --stack '
+            - !Ref 'AWS::StackName'
+            - '         --resource LAMPesASG '
+            - '         --region '
+            - !Ref 'AWS::Region'
+            - |+
+
+  LAMPesSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable HTTP access via port 80 locked down to the ELB and SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup #!GetAtt LAMPesALBSecurityGroups.Outputs.LoadBalancerSecurityGroup
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref SSHLocation
+      VpcId: !Ref VPCid #!GetAtt LAMPesVPC.Outputs.VPC  #ex !Ref LAMPesVPC
+      Tags:
+      - Key: "Name"
+        Value: !Ref AWS::StackName #"LAMPesASG" 
+
+Outputs:
+  LAMPesSG:
+    Description: A reference to the LAMPesSG
+    Value: !Ref LAMPesSG
+  
