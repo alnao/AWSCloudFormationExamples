@@ -34,7 +34,7 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 
 ## Esempi di template CloudFormation
 - 01: Creazione di un semplice bucket S3 con il nome parametrico.
-- 02: Creazione di una istanza EC2 con un web-server (con user-data, security group, VPC e subnet specifica)
+- 02: Creazione di una istanza EC2 con un web-server (user-data, security group, VPC e subnet)
 
 ## Esempi di template CloudFormation in fase di revisione
 - 03: creazione bucket pubblicamente accessibile e sito esposto senza CloudFront
