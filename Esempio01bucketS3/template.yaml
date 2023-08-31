@@ -1,6 +1,6 @@
 #Intestazione con la descrizione
 AWSTemplateFormatVersion: 2010-09-09
-Description: Creazione di un bucket semplice bucket S3 con il nome parametrico
+Description: Template per creare un semplice bucket S3 con il nome parametrico
 #blocco Parametri
 Parameters:
   NomeBucket:

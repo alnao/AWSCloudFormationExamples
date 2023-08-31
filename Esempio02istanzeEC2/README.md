@@ -28,3 +28,8 @@ sam deploy --template-file .\packagedV1.yaml --stack-name Esempio14istanzeEC2 --
 ```
 sam delete --stack-name Esempio14istanzeEC2
 ```
+
+## Release Notes
+see [www.alnao.it/aws](https://www.alnao.it/aws)
+
+

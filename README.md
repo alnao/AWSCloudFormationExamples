@@ -21,23 +21,23 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 
 ## Prerequisiti
 - Un account AWS attivo
-- La AWS-CLI installata correttamente, [documentazione ufficiale](https://docs.aws.amazon.com/it_it/cli/v1/userguide/cli-chap-install.html)
-- Configurazione utenza tecnica su IAM di tipo programmatico con permessi di esecuzione di CloudFormation e configurazione della AWS-CLI con il comando
+- La AWS-CLI installata, [documentazione ufficiale](https://docs.aws.amazon.com/it_it/cli/v1/userguide/cli-chap-install.html)
+- Utenza tecnica di tipo programmatico configurata su IAM con permessi di esecuzione di CloudFormation e configurazione della AWS-CLI con il comando
     - ```aws configuration```
 - La AWS-CLI-SAM installata correttamente, [documentazione ufficiale](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 - Per ogni template, se non indicato diversamente, i comandi da eseguire per eseguire il deploy sono:
   - ```sam validate```
   - ```sam build```
-  - ```sam deploy --template-file .\packagedV1.yaml --stack-name esempio00name --capabilities CAPABILITY_IAM```
+  - ```sam deploy --template-file .\packagedV1.yaml --stack-name <esempio00name> --capabilities CAPABILITY_IAM```
 - Se si tratta di template con più files tra build e deploy è indispensabile eseguire il comando di package:
   - ```sam package --output-template-file <packagedV1.yaml> --s3-prefix <repository-path> --s3-bucket <bucket-name>```
 
 ## Esempi di template CloudFormation
-- 01: Creazione di un semplice bucket S3 con il nome parametrico.
-- 02: Creazione di una istanza EC2 con un web-server (user-data, security group, VPC e subnet)
+- 01: semplice bucket S3 con il nome parametrico.
+- 02: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
+- 03: bucket pubblicamente accessibile e hosted website (senza CloudFront)
 
 ## Esempi di template CloudFormation in fase di revisione
-- 03: creazione bucket pubblicamente accessibile e sito esposto senza CloudFront
 - 04: lambda(Py) che viene avviata al caricamento di un file in un S3, la lambda scrive solo un log
 - 05: lambsa(Py) che da un file CSV caricato su bucket S3 carica una tabella Dynamo, la prima riga del CSV è l'elenco dei campi del tracciato (Dynamo non è schema-less)
 - 06: lambda(Py) che copia in un file da un bucket ad un altro con trigger nel primo
@@ -74,4 +74,4 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
   - SNS per l'invio di notifiche quando un file viene caricato
 
 ## See
-Tutti questi esempi sono spiegati nel sito [alnao.it](https://www.alnao.it/wordpress/aws/) nella pagina di AWS nella sottosezione dedicata ad CloudFormation.#
+Tutti gli esempi fanno riferimento ad articoli nel sito [alnao.it](https://www.alnao.it/aws/).

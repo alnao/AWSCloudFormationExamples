@@ -1,36 +1,60 @@
 
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudFormation template for s3 bucket con BucketPolicy
+Description: Template S3 hosted website con BucketPolicy
+# questo template è ispirato all'esempio nel sito ufficiale 
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-policy.html'
+# per le regole ACL 
+# https://repost.aws/knowledge-center/cloudformation-objectownership-acl-error
+Parameters:
+  NomeBucket:
+    Type: String
+    Default: esempio03buckets3
+    Description: Nome del bucket
+    MinLength: 9
 Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      AccessControl: PublicRead
+#      AccessControl: PublicRead
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
         BlockPublicPolicy: false
-        # true    #https://github.com/prowler-cloud/prowler/issues/793
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
-      BucketName: esempio02buckets3sito
+      BucketName: !Ref NomeBucket
       MetricsConfigurations:
         - Id: EntireBucket
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
-    DeletionPolicy: Retain
+      Tags:
+        - Key: "StackName"
+          Value: !Ref AWS::StackName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      #https://repost.aws/knowledge-center/cloudformation-objectownership-acl-error
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+    #DeletionPolicy: Retain
+  # AWS Foundational Security Best Practices v1.0.0 S3.5
   S3BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: 'esempio02buckets3sito'
+      Bucket: !Ref NomeBucket
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Sid: AllowSSLRequestsOnly # AWS Foundational Security Best Practices v1.0.0 S3.5
+          - Sid: AllowSSLRequestsOnly 
             Action: 's3:GetObject'
             Effect: Allow
-            Resource: 
-              - 'arn:aws:s3:::esempio02buckets3sito/*'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref NomeBucket
+                - /*
             Principal: '*'
 Outputs:
   WebsiteURL:
