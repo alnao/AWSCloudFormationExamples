@@ -1,7 +1,7 @@
 # AWSCloudFormationExamples
 AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
-## Esempio14istanzeEC2
+## Esempio02istanzeEC2
 Creazione di una semplice istanza EC2 esposta in internet con IP pubblico con un webserver creato all'avvio.
 Questo si ispira al template ufficiale di esempio
 ```
@@ -21,12 +21,12 @@ Nota: per avviare il template è necessario inserire tre parametri obbligatori: 
 sam validate
 sam build
 sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
-sam deploy --template-file .\packagedV1.yaml --stack-name Esempio14istanzeEC2 --parameter-overrides KeyName=XXXXXX VpcId=vpc-XXXXX SubnetId=subnet-XXXX
+sam deploy --template-file .\packagedV1.yaml --stack-name Esempio02istanzeEC2 --parameter-overrides KeyName=XXXXXX VpcId=vpc-XXXXX SubnetId=subnet-XXXX
 ```
 
 ### Comandi per la rimozione
 ```
-sam delete --stack-name Esempio14istanzeEC2
+sam delete --stack-name Esempio02istanzeEC2
 ```
 
 ## Release Notes
