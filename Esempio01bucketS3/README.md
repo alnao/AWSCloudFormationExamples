@@ -1,12 +1,12 @@
-# AWSCloudFormationExamples
-AWS CloudFormation Examples - vedere i prerequisiti nel README generale
-
-## Esempio01bucketS3
+# Esempio01bucketS3
 Creazione di un bucket semplice bucket S3 con il nome parametrico.
 Template eseguibile in Console Web di AWS oppure tramite i comandi CLI-SAM:
 
 
-### Comandi per la creazione
+AWS CloudFormation Examples - vedere i prerequisiti nel README generale
+
+
+## Comandi per la creazione
 
 
 ```
@@ -17,21 +17,25 @@ sam deploy --stack-name esempio1buckets3 --capabilities CAPABILITY_IAM
 nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 
 
-### Comando per personalizzare il nome del bucket
+## Comando per personalizzare il nome del bucket
 
 ```
 sam deploy --stack-name esempio1buckets3 --capabilities CAPABILITY_IAM --parameter-overrides SourceBucket=esempio3
 ```
 
 
-### Comandi per la distruzione dello stack
+## Comandi per la distruzione dello stack
 
 
 ```
 sam delete --stack-name esempio1buckets3
 ```
 
-## Release Notes
-see [www.alnao.it/aws](https://www.alnao.it/aws)
+# AlNao.it
+Nessun contenuto in questo repository è stato creato con IA o automaticamente, tutto il codice è stato scritto con molta pazienza da Alberto Nao. Se il codice è stato preso da altri siti/progetti è sempre indicata la fonte. Per maggior informazioni visitare il sito [alnao.it](https://www.alnao.it/).
 
+## License
+**Free Software, Hell Yeah!**
+See [MIT](https://it.wikipedia.org/wiki/Licenza_MIT)
 
+Copyright (c) 2023 AlNao.it

@@ -1,17 +1,7 @@
-#  Esempio 04 s3 con notifica e lambda che fa una print su console
-#  $ sam validate
-#  $ sam build
-#  $ sam deploy --stack-name esempio04s3notifica --capabilities CAPABILITY_IAM
-#  opzionali: --parameter-overrides State=ENABLED BucketName=esempio04s3notificab
-#  nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
-#  per provare caricamento con comando 
-#  $ aws s3 cp prova.csv s3://esempio04s3notifica
-#  $ sam logs --stack-name esempio04s3notifica
-#  $ sam delete --stack-name esempio04s3notifica
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Description: > 
-  Esempio 04 s3 con notifica e lambda che fa una print su console
+Description: Lambda Python invocata da una notifica da S3
+# nota: questo esempio non segue best-practices: notifiche da S3 senza usare EventBridge e codice inline (tecniche da evitare)
+
 Parameters:
   State:
     Type: String
@@ -27,7 +17,6 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      AccessControl: PublicRead
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -45,7 +34,7 @@ Resources:
                   - Name: suffix
                     Value: csv
             Function: !GetAtt S3Notification.Arn
-    DeletionPolicy: Retain
+#    DeletionPolicy: Retain
   S3Notification:
     Type: 'AWS::Lambda::Function'
     Properties:
@@ -61,7 +50,7 @@ Resources:
             return {'statusCode': 200 , 'body': 'OK'}
       Handler: index.lambda_handler
       Role: !GetAtt LambdaIAMRole.Arn
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 5
   LambdaInvokePermission:
     Type: 'AWS::Lambda::Permission'

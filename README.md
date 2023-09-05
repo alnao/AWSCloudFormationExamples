@@ -33,9 +33,10 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
   - ```sam package --output-template-file <packagedV1.yaml> --s3-prefix <repository-path> --s3-bucket <bucket-name>```
 
 ## Esempi di template CloudFormation
-- 01: semplice bucket S3 con il nome parametrico.
-- 02: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
-- 03: bucket pubblicamente accessibile e hosted website (senza CloudFront)
+- 01 **bucket S3**: semplice bucket S3 con il nome parametrico.
+- 02 **istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
+- 03 **bucket S3 sito**: bucket pubblicamente accessibile e hosted website (senza CloudFront)
+- 04 **lambda con notifica s3**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge)
 
 ## Esempi di template CloudFormation in fase di revisione
 - 04: lambda(Py) che viene avviata al caricamento di un file in un S3, la lambda scrive solo un log
@@ -73,5 +74,18 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
   - Tabella Dynamo come registro di tutti i files caricati
   - SNS per l'invio di notifiche quando un file viene caricato
 
-## See
-Tutti gli esempi fanno riferimento ad articoli nel sito [alnao.it](https://www.alnao.it/aws/).
+# AlNao.it
+Nessun contenuto in questo repository è stato creato con IA o automaticamente, tutto il codice è stato scritto con molta pazienza da Alberto Nao. Se il codice è stato preso da altri siti/progetti è sempre indicata la fonte. Per maggior informazioni visitare il sito [alnao.it](https://www.alnao.it/).
+
+## License
+**Free Software, Hell Yeah!**
+See [MIT](https://it.wikipedia.org/wiki/Licenza_MIT)
+
+
+Copyright (c) 2023 AlNao.it
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the  following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
