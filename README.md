@@ -37,10 +37,9 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 02 **istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
 - 03 **bucket S3 sito**: bucket pubblicamente accessibile e hosted website (senza CloudFront)
 - 04 **lambda con notifica s3**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge)
+- 05 **condition**: creazione di una istanza EC2 con creazione di volumi condizionata da un parametro di ambiente (dev/prov)
 
 ## Esempi di template CloudFormation in fase di revisione
-- 04: lambda(Py) che viene avviata al caricamento di un file in un S3, la lambda scrive solo un log
-- 05: lambsa(Py) che da un file CSV caricato su bucket S3 carica una tabella Dynamo, la prima riga del CSV è l'elenco dei campi del tracciato (Dynamo non è schema-less)
 - 06: lambda(Py) che copia in un file da un bucket ad un altro con trigger nel primo
 - 07: lambda con python esterno (come da best-practices)
 - 08: lambda(Py) triggerata ad un upload di un se, chiamata ad una stepFunction che copia il file e poi lo cancella dalla sorgente
@@ -58,8 +57,6 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 16b: lambda(Py) esposta con API Gateway e Lambda Authorizer che valida un token Jwt
 - 17: lambda(Py) che esegue unzip di un file da un bucket ad un altro
 - 18: template di istanza EC2 con parametri recuperati dal SSM Parameter Store
-- 19: template di istanza EC2 evolutiva del 18 con definizione di matrice mappins per dimensione dell'istanza
-- 20: template di istanze EC2 evolutiva del 19 con condition: creazione di un volume in produzione e non in dev
 - 21: template che crea un coda con il Servizio SQS e due semplici lambda in PY per leggere e scrivere nella coda
 - 22: template che crea una VPC e un VPNendpoint da usare con il client da desktop
 - 23: template che crea una VPC, un RDS MySql e una EC2, nella EC2 viene installato in automatico un Wordpress
