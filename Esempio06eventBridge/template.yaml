@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Es07 template esegue una lambda esterna in un file dentro la cartella lambda
-# eventualmente si può modificare la lambda interna per fare cose diverse, per ora mostra solo un dump dell'event
+Description: Esempio di template CloudFormation con creazione di due regole EventBridge per eseguire due Lambda Function
 
 Parameters:
   SourceBucket:

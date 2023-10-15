@@ -37,8 +37,9 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 02 **istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
 - 03 **bucket S3 sito**: bucket pubblicamente accessibile e hosted website (senza CloudFront)
 - 04 **lambda con notifica s3**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge)
-- 05 **condition**: creazione di una istanza EC2 con creazione di volumi condizionata da un parametro di ambiente (dev/prov)
-- 06 **eventBridge**: creazione di due regole EventBridge (trigger & cron) per l'invocazioni di Lambda Function 
+- 05 **condition**: istanza EC2 con creazione di volumi condizionata da un parametro di ambiente (dev/prov)
+- 06 **eventBridge**: due regole EventBridge (trigger & cron) per l'invocazioni di Lambda Function 
+- 07 **cloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
 
 ## Esempi di template CloudFormation in fase di revisione
 - 08: lambda(Py) triggerata ad un upload di un se, chiamata ad una stepFunction che copia il file e poi lo cancella dalla sorgente
