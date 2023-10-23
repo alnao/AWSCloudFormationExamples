@@ -1,23 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Es08 step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
+Description: Esempio di template CloudFormation per un processo che S3 -> Trigger -> Lambda -> Step Function -> Lambda
 
 # Promemoria:
 # Nel bucket sorgente deve essere attivata (manualmente) la proprietà EventBridgeConfiguration: EventBridgeEnabled: true
-
-# modello caricato via SAM con il comando 
-# $ sam validate
-# $ sam build
-# $ sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
-# $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08complete --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
-# opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08complete --capabilities CAPABILITY_IAM --parameter-overrides DestBucket=input-alberto2
-# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
-# per provare caricamento con comando 
-# $ aws s3 cp ../../Esempio04s3NotificaLamba/prova.csv s3://alberto-input/INPUT/prova.csv
-# $ aws s3 ls s3://alberto-input/INPUT/
-# $ aws s3 ls s3://alberto-input2/OUTPUT/
-# $ sam logs --stack-name esempio08complete
-# $ sam delete --stack-name esempio08complete
 
 Parameters:
   SourceBucket:
@@ -31,47 +17,56 @@ Parameters:
   SourceFilePattern:
     Type: String
     Description: Source Path solo il nome del file
-    Default: prova.csv
+    Default: prova*
   DestBucket:
     Type: String
     Description: Bucket destinazione
     Default: alberto-input2
-  DestFileName:
-    Type: String
-    Description: Source Path solo il nome del file
-    Default: provaDest.csv
+#  DestFileName:
+#    Type: String
+#    Description: Source Path solo il nome del file
+#    Default: provaDest.csv
   DestFilePath:
     Type: String
     Description: Source Path senza barre iniziali e finali
     Default: OUTPUT
 
 Resources:
-  # TRIGGER --> lambda --> step function
-  Esempio08Trigger:
+  # TRIGGER --> lambda --> step function -> lambda
+  Trigger:
     Type: AWS::Serverless::Application
     Properties:
       Location: ./Trigger/template.yaml
       Parameters:
         SourceBucket: !Ref SourceBucket
         SourcePath: !Ref SourcePath
-        StateMachineArn: !GetAtt Esempio08Application.Outputs.StateMachineArn
-        StateMachineName: !GetAtt Esempio08Application.Outputs.StateMachineName
+        StateMachineArn: !GetAtt StateMachine.Outputs.StateMachineArn
+        StateMachineName: !GetAtt StateMachine.Outputs.StateMachineName
         SourceFilePattern: !Ref SourceFilePattern
   
-  Esempio08Application:
+  StateMachine:
     Type: AWS::Serverless::Application
     Properties:
       Location: ./StateMachine/template.yaml
       Parameters:
-        SFName: Esempio08StateMachine
+        SFName: smEsempio08
         SourceBucket: !Ref SourceBucket
         SourcePath: !Ref SourcePath
         DestBucket: !Ref DestBucket
-        DestFileName: !Ref DestFileName
+        #DestFileName: !Ref DestFileName
         DestFilePath: !Ref DestFilePath
-        #SourceStagingPath: !Ref ArcaresStagingInputPath
-        #DestStagingPath: !Ref CedacriStagingPath
-        #FtpToCedacriFnArn: !Ref FtpToCedacriFnArn
+        ProcessArn: !GetAtt Process.Outputs.ProcessArn
+        
+  Process:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./Process/template.yaml
+      Parameters:
+        DestBucket: !Ref DestBucket
+        DestFilePath: !Ref DestFilePath
+        #DestFileName: !Ref DestFileName
+        #NO StateMachineArn: !GetAtt StateMachine.Outputs.StateMachineArn
+        #NO StateMachineName: !GetAtt StateMachine.Outputs.StateMachineName
 
 Outputs:
   StackName:

@@ -7,7 +7,8 @@ States:
     Parameters:
       Bucket: ${DestBucket}
       CopySource.$: States.Format('${SourceBucket}/${SourcePath}/{}', $.filename)
-      Key.$: States.Format('${DestFilePath}/${DestFileName}-{}', $$.Execution.StartTime)
+      #Key.$: States.Format('${DestFilePath}/${DestFileName}-{}', $$.Execution.StartTime)
+      Key.$: States.Format('${DestFilePath}/{}-{}', $.filename, $$.Execution.StartTime)
     ResultPath: null
     Next: DeleteInputFile
 
@@ -18,7 +19,7 @@ States:
       Bucket: ${SourceBucket}
       Key.$: States.Format('${SourcePath}/{}', $.filename)
     ResultPath: null
-    Next: End
+    Next: StartLambdaProcess
 
 #  CreateCopyForXXXX:
 #    Type: Task
@@ -30,17 +31,17 @@ States:
 #    ResultPath: null
 #    Next: FtpToXXXX
 #
-#  FtpToXXXX:
-#    Type: Task
-#    Resource: arn:aws:states:::lambda:invoke
-#    Parameters:
-#      FunctionName: ${FtpToXXXXFnArn}
-#      Payload:  
-#        file:
+  StartLambdaProcess:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke
+    Parameters:
+      FunctionName: ${ProcessArn}
+      Payload:  
+        file:
 #          s3bucket: ${StagingBucket}
-#          source.$: States.Format('${DestStagingPath}/{}-{}', $.filename, $$.Execution.StartTime)
+          source.$: States.Format('${DestFilePath}/{}-{}', $.filename, $$.Execution.StartTime)
 #          destname: ${FlowFileName}
-#    Next: End
+    Next: End
   
   End:
     Type: Pass

@@ -40,14 +40,9 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 05 **condition**: istanza EC2 con creazione di volumi condizionata da un parametro di ambiente (dev/prov)
 - 06 **eventBridge**: due regole EventBridge (trigger & cron) per l'invocazioni di Lambda Function 
 - 07 **cloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
+- 08 **stepFunction**: definizione di una step function, invocata da un EventBridge-Lambda, i passi eseguiti dalla macchina a stati sono: copia un file, cancellazione del file originale e poi esecuzione di una lambda function
 
 ## Esempi di template CloudFormation in fase di revisione
-- 08: lambda(Py) triggerata ad un upload di un se, chiamata ad una stepFunction che copia il file e poi lo cancella dalla sorgente
-- 09: lambda(Py) triggerata ad un upload di un se, chiamata ad una stepFunction che esegue dei passaggi
-  - copia in una cartella staging IN
-  - cancellazione dell'originale
-  - copia in una cartella staging OUT
-  - copia in un bucket esterno
 - 10: api rest con chiamata lambda (script da ApiManager)
 - 11: lambda(Py) esposta con API che ritorna un json di esempio
 - 12: CRUD Api su Tabella Dynamo (schema-less)

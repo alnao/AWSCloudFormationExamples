@@ -1,18 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  Template CloudFormation - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
-  TRIGGER che lancia la lambda che poi esegue la state machine
-
-# $ sam validate
-# $ sam build
-# $ sam package --output-template-file packagedV1T.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
-# $ sam deploy --template-file .\packagedV1T.yaml --stack-name esempio08trigger --capabilities CAPABILITY_IAM
-#   opzionali: $ sam deploy --template-file .\packagedV1.yaml --stack-name esempio08trigger --capabilities CAPABILITY_IAM --parameter-overrides DestBucket=input-alberto2
-#   nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
-# per provare caricamento con comando 
-# $ sam logs --stack-name esempio08trigger
-# $ sam delete --stack-name esempio08trigger
+Description: Trigger EventBridge che da un evento S3 esegue una step function
 
 Parameters:
   SourceBucket:
@@ -40,7 +28,7 @@ Parameters:
 Resources:
 
 
-  Esempio08TriggerOnFilePutEventRule:
+  TriggerOnFilePutEventRule:
     Type: AWS::Events::Rule
     Properties:
       EventBusName: default
@@ -59,21 +47,21 @@ Resources:
               - prefix: !Ref SourcePath
       Targets:
         - Id: id1
-          Arn: !GetAtt Esempio08Lambda.Arn
+          Arn: !GetAtt Lambda.Arn
 
-  Esempio08PermissionForEventsToInvokeLambda: 
+  PermissionForEventsToInvokeLambda: 
     Type: AWS::Lambda::Permission
     Properties: 
-      FunctionName: !GetAtt Esempio08Lambda.Arn
+      FunctionName: !GetAtt Lambda.Arn
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt Esempio08TriggerOnFilePutEventRule.Arn
+      SourceArn: !GetAtt TriggerOnFilePutEventRule.Arn
 #      SourceArn: !Join
 #      - ''
 #      - - 'arn:aws:s3:::'
 #        - !Ref SourceBucket
 
-  Esempio08Lambda:
+  Lambda:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda
@@ -84,7 +72,7 @@ Resources:
         Variables:
           STATE_MACHINE_ARN: !Ref StateMachineArn
           FILE_PATTERN_MATCH: !Ref SourceFilePattern
-      Role: !GetAtt Esempio08LambdaIamRole.Arn
+      Role: !GetAtt LambdaIamRole.Arn
       Policies:
         - Statement:
           - Sid: AllowAccessToStepFunction
@@ -94,7 +82,7 @@ Resources:
         - StepFunctionsExecutionPolicy:
           StateMachineName: !Ref StateMachineName
 
-  Esempio08LambdaIamRole:
+  LambdaIamRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:

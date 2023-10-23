@@ -1,28 +1,14 @@
----
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  Template CloudFormation - esecuzione di una step funzion che copia un file da un bucket ad un altro e poi cancella il sorgente
-  State machine che esegue lo spostamento di un file da un bucket ad un altro
-
-# $ sam validate
-# $ sam build
-# $ sam package --output-template-file packagedV1SM.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
-# $ sam deploy --template-file .\packagedV1SM.yaml --stack-name esempio08statemachine --capabilities CAPABILITY_IAM 
-# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
-# --parameter-overrides SourceBucket= SourcePath= DestFileName= DestFilePath=OUTPUT DestBucket=alberto-input2 SFName=Esempio08SF
-# per provare caricamento con comando 
-# $ sam logs --stack-name esempio08statemachine
-# $ sam delete --stack-name esempio08statemachine
+Description: Step function che esegue la copia di un file e poi lancia una lambda function
 
 Parameters:
   SFName:
     Type: String
-    Default: 'Esempio08SF'
-#FlowFileName: --> DestFileName
-  DestFileName:
-    Type: String
-    Default: provaDest.csv
+    Default: 'smEsempio08'
+#  DestFileName:
+#    Type: String
+#    Default: provaDest.csv
   SourceBucket: 
     Type: String
     Default: alberto-input
@@ -38,9 +24,12 @@ Parameters:
   DestFilePath:
     Type: String
     Default: OUTPUT
+  ProcessArn:
+    Type: String
+    Default: xxxxxxxxxxxxxx
 
 Resources:
-  Esempio08StateMachineRole:
+  StateMachineRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -69,10 +58,9 @@ Resources:
                   - 'logs:DescribeLogGroups'
                   - 'cloudwatch:PutMetricData'
                 Resource: '*'
-#              - Effect: Allow
-#                Action:
-#                  - 'lambda:InvokeFunction'
-#                Resource: !Ref FtpFnArn
+              - Effect: Allow
+                Action: 'lambda:InvokeFunction'
+                Resource: !Ref ProcessArn
               - Effect: Allow
                 Action: "s3:*"
                 Resource: !Sub "arn:aws:s3:::${SourceBucket}/*"
@@ -86,31 +74,30 @@ Resources:
                 Action: "s3:*"
                 Resource: !Sub "arn:aws:s3:::${DestBucket}/"
                
-  Esempio08StateMachineLogGroup:
+  StateMachineLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 3
       LogGroupName: !Sub /aws/vendedlogs/states/${SFName}-statemachine-logs
         
-  Esempio08StateMachine:
+  StateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
       Name: !Ref SFName
       Type: STANDARD
       DefinitionUri: statemachine.yaml
-      Role: !GetAtt Esempio08StateMachineRole.Arn
+      Role: !GetAtt StateMachineRole.Arn
       DefinitionSubstitutions:
         DestFileName: !Ref DestFileName
-        #FtpFnArn: !Ref FtpFnArn
+        ProcessArn: !Ref ProcessArn
         SourcePath: !Ref SourcePath
         SourceBucket: !Ref SourceBucket
         DestBucket: !Ref DestBucket
         DestFilePath: !Ref DestFilePath
-#        DestFileName: !Ref DestFileName
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:
-              LogGroupArn: !GetAtt Esempio08StateMachineLogGroup.Arn
+              LogGroupArn: !GetAtt StateMachineLogGroup.Arn
         Level: ALL
         IncludeExecutionData: True
 
@@ -121,8 +108,18 @@ Outputs:
     Value: !Ref AWS::StackName
   StateMachineArn:
     Description: ARN of the created State Machine
-    Value: !Ref Esempio08StateMachine
+    Value: !Ref StateMachine
   StateMachineName:
     Description: ARN of the created State Machine
-    Value: !GetAtt Esempio08StateMachine.Name
+    Value: !GetAtt StateMachine.Name
     
+
+# $ sam validate
+# $ sam build
+# $ sam package --output-template-file packagedV1SM.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
+# $ sam deploy --template-file .\packagedV1SM.yaml --stack-name esempio08statemachine --capabilities CAPABILITY_IAM 
+# nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
+# --parameter-overrides SourceBucket= SourcePath= DestFileName= DestFilePath=OUTPUT DestBucket=alberto-input2 SFName=Esempio08SF
+# per provare caricamento con comando 
+# $ sam logs --stack-name esempio08statemachine
+# $ sam delete --stack-name esempio08statemachine
