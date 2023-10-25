@@ -41,6 +41,7 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 06 **eventBridge**: due regole EventBridge (trigger & cron) per l'invocazioni di Lambda Function 
 - 07 **cloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
 - 08 **stepFunction**: definizione di una step function, invocata da un EventBridge-Lambda, i passi eseguiti dalla macchina a stati sono: copia un file, cancellazione del file originale e poi esecuzione di una lambda function
+- 09 **parametriSSM**: uso del template 02 *istanze EC2* ma con un parametro custom recuperato dal servizio SSM
 
 ## Esempi di template CloudFormation in fase di revisione
 - 10: api rest con chiamata lambda (script da ApiManager)
