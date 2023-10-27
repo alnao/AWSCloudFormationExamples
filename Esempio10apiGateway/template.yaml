@@ -1,9 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
-
-Description: AWS API Gateway with a Lambda Integration
-
+Description: Esempio di template CloudFormation con API Gateway with a Lambda Integration
 Resources:
-
   ApiGatewayRestApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
@@ -13,14 +10,12 @@ Resources:
         Types:
           - EDGE
       Name: lambda-api
-
   ApiGatewayResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt ApiGatewayRestApi.RootResourceId
       PathPart: 'lambda'
       RestApiId: !Ref ApiGatewayRestApi
-
   ApiGatewayMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -38,14 +33,12 @@ Resources:
       OperationName: 'lambda'
       ResourceId: !Ref ApiGatewayResource
       RestApiId: !Ref ApiGatewayRestApi
-
   ApiGatewayModel:
     Type: AWS::ApiGateway::Model
     Properties:
       ContentType: 'application/json'
       RestApiId: !Ref ApiGatewayRestApi
       Schema: {}
-
   ApiGatewayStage:
     Type: AWS::ApiGateway::Stage
     Properties:
@@ -53,14 +46,12 @@ Resources:
       Description: Lambda API Stage v0
       RestApiId: !Ref ApiGatewayRestApi
       StageName: 'v0'
-
   ApiGatewayDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn: ApiGatewayMethod
     Properties:
       Description: Lambda API Deployment
       RestApiId: !Ref ApiGatewayRestApi
-
   ApiGatewayIamRole:
     Type: AWS::IAM::Role
     Properties:
@@ -83,7 +74,6 @@ Resources:
               - Effect: 'Allow'
                 Action: 'lambda:*'
                 Resource: !GetAtt LambdaFunction.Arn
-
   LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -105,13 +95,18 @@ Resources:
       Role: !GetAtt LambdaIamRole.Arn
       Runtime: python3.7
       Timeout: 60
-
   LambdaIamRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
+          - Effect: Allow
+            Action:
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:PutLogEvents'
+            Resource: 'arn:aws:logs:*:*:*'
           - Effect: 'Allow'
             Principal:
               Service:
@@ -119,4 +114,10 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Path: '/'
-
+Outputs:
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+#  APIEndPoint:
+#    Description: Endpoint URL API REST
+#    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}

@@ -42,11 +42,10 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 07 **cloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
 - 08 **stepFunction**: definizione di una step function, invocata da un EventBridge-Lambda, i passi eseguiti dalla macchina a stati sono: copia un file, cancellazione del file originale e poi esecuzione di una lambda function
 - 09 **parametriSSM**: uso del template 02 *istanze EC2* ma con un parametro custom recuperato dal servizio SSM
+- 10 **apiGateway**: creazione di un servizio REST, esposto con Api Gateway e Lambda function come back-end
+- 11 **dynamoApiCrud**: tabella dynamo con micro-servizi per scrivere e leggere nella tabella (con Api Gateway e Lambda function)
 
 ## Esempi di template CloudFormation in fase di revisione
-- 10: api rest con chiamata lambda (script da ApiManager)
-- 11: lambda(Py) esposta con API che ritorna un json di esempio
-- 12: CRUD Api su Tabella Dynamo (schema-less)
 - 13: lambda(Py) per gestire file (leggere e scrivere)
 - 15: lambda in Java-maven
 - 16: lambda(Py) esposta con API Gateway che valida un token Jwt internamente

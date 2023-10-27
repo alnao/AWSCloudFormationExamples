@@ -1,16 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Es12 bucket con trigger, dynamoDB, lambda di caricamento di csv in dynamo, api rest CRUD con py inline
+Description: Esempio di template CloudFormation con tabella Dynamo e CRUD sviluppato con Lambda Function ed esposto con API Manager (AWS::Serverless::Api)
+# nota nel template c'è anche un Bucket S3 e un trigger che carica dati sulla tabella Dynamo
 
-# bucket di appoggio
-# trigger sul bucket per lanciare la lambda
-# lambda di caricamento da file csv a dynamo
-# tabella Dynamo
-# permessi della lambda caricamento di accedere a S3 e Dynamo
-# api gateway
-#  rest api get
-#  rest api post
-#  rest api delete
 # see
 # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-api.html
 # https://www.fernandomc.com/posts/ten-examples-of-getting-data-from-dynamodb-with-python-and-boto3/
@@ -31,11 +23,11 @@ Parameters:
   BucketName:
     Type: String
     Description: Nome del bucket
-    Default: alberto-input
+    Default: alberto-input-es11
   DynamoName:
     Type: String
     Description: Nome del DB dynamo
-    Default: tabellaDynamoEs12
+    Default: dynamo-es11
   FilePattern:
     Type: String
     Default: INPUT
@@ -43,24 +35,39 @@ Parameters:
     Type: String
     Default: dev
 Resources:
-#  ES12Bucket:
-#    Type: 'AWS::S3::Bucket'
-#    Properties:
-#      AccessControl: PublicRead
-#      PublicAccessBlockConfiguration:
-#        BlockPublicAcls: false
-#        BlockPublicPolicy: false
-#        IgnorePublicAcls: false
-#        RestrictPublicBuckets: false
-#      BucketName: !Ref BucketName
-#      MetricsConfigurations:
-#        - Id: EntireBucket
-#      NotificationConfiguration:
-#        EventBridgeConfiguration:
-#          EventBridgeEnabled: true
+  Dynamo:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref DynamoName
+      AttributeDefinitions:
+        - 
+          AttributeName: "id"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+
+  Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: !Ref BucketName
+      MetricsConfigurations:
+        - Id: EntireBucket
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
 #    DeletionPolicy: Retain
 
-  ES12NotificationLambda:
+  NotificationLambda:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda
@@ -70,10 +77,10 @@ Resources:
       Environment: 
         Variables:
           DynamoName: !Ref DynamoName
-      Role: !GetAtt ES12LambdaIAMRole.Arn
+      Role: !GetAtt LambdaIAMRole.Arn
       Timeout: 500
 
-  ES12TriggerExternalPy:
+  TriggerExternalPy:
     Type: AWS::Events::Rule
     Properties:
       EventBusName: default
@@ -91,30 +98,16 @@ Resources:
               - prefix: !Ref FilePattern
       Targets:
         - Id: id1
-          Arn: !GetAtt ES12NotificationLambda.Arn
-  ES12PermissionForEventsToInvokeLambda: 
+          Arn: !GetAtt NotificationLambda.Arn
+  PermissionForEventsToInvokeLambda: 
     Type: AWS::Lambda::Permission
     Properties: 
-      FunctionName: !Ref ES12NotificationLambda
+      FunctionName: !Ref NotificationLambda
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt ES12TriggerExternalPy.Arn
-  ES12Dynamo:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: !Ref DynamoName
-      AttributeDefinitions:
-        - 
-          AttributeName: "id"
-          AttributeType: "S"
-      KeySchema: 
-        - 
-          AttributeName: "id"
-          KeyType: "HASH"
-      ProvisionedThroughput: 
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
-  ES12LambdaIAMRole:
+      SourceArn: !GetAtt TriggerExternalPy.Arn
+
+  LambdaIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -143,7 +136,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - 'dynamodb:BatchWriteItem'
-                Resource: !GetAtt ES12Dynamo.Arn
+                Resource: !GetAtt Dynamo.Arn
               - Effect: Allow
                 Action:
                   - 's3:GetObject'
@@ -160,7 +153,7 @@ Resources:
                   - 'logs:PutLogEvents'
                 Resource: 'arn:aws:logs:*:*:*'
 
-  ES12APIRole:
+  APIRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -184,14 +177,15 @@ Resources:
                 - "dynamodb:DeleteItem"
                 - "dynamodb:GetItem"
                 - "dynamodb:Scan"
-                Resource: !GetAtt ES12Dynamo.Arn
+                Resource: !GetAtt Dynamo.Arn
               - Effect: Allow
                 Action:
                   - 'logs:CreateLogGroup'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: 'arn:aws:logs:*:*:*'
-  ES12ApiGateway:
+
+  ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
@@ -215,10 +209,11 @@ Resources:
           HttpMethod: DELETE
           CachingEnabled: false
           CacheTtlInSeconds: 300
-  ES12ApiGetFunction: # Adds a GET api endpoint at "/" to the ES12ApiGateway via an Api event
+
+  ApiGetFunction: # Adds a GET api endpoint at "/" to the ApiGateway via an Api event
     Type: AWS::Serverless::Function
     Properties:
-      Role: !GetAtt ES12APIRole.Arn
+      Role: !GetAtt APIRole.Arn
       Events:
         ApiEvent:
           Type: Api
@@ -226,29 +221,20 @@ Resources:
             Path: /
             Method: get
             RestApiId:
-              Ref: ES12ApiGateway
-      Runtime: python3.7
-      Handler: index.handler
+              Ref: ApiGateway
+      CodeUri: lambda
+      Handler: dynamo_crud.get_handler
+      Runtime: python3.8
       MemorySize: 128
       Environment: 
         Variables:
           DynamoName: !Ref DynamoName
-      InlineCode: |
-        import boto3
-        import os
-        import json
-        TABLE_NAME = os.environ['DynamoName'] 
-        def handler(event, context):
-            print("Esecuzione" + json.dumps(event) )
-            dynamodb = boto3.resource('dynamodb', region_name="eu-west-1")
-            table = dynamodb.Table(TABLE_NAME)
-            response = table.scan() #FilterExpression=Attr('id').eq('1') | Attr('id').eq('2'))
-            return {'body': json.dumps(response['Items']), 'statusCode': 200, 'headers' : {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'*'} }
-            #
-  ES12ApiPostFunction:
+      Timeout: 500
+
+  ApiPostFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !GetAtt ES12APIRole.Arn
+      Role: !GetAtt APIRole.Arn
       Events:
         ApiEvent:
           Type: Api
@@ -256,37 +242,20 @@ Resources:
             Path: /
             Method: post
             RestApiId:
-              Ref: ES12ApiGateway
-      Runtime: python3.7
-      Handler: index.handler
+              Ref: ApiGateway
+      CodeUri: lambda
+      Handler: dynamo_crud.post_handler
+      Runtime: python3.8
       MemorySize: 128
       Environment: 
         Variables:
           DynamoName: !Ref DynamoName
-      InlineCode: |
-        import boto3
-        import os
-        import json
-        import datetime
-        from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
-        TABLE_NAME = os.environ['DynamoName'] 
-        def handler(event, context):
-            print("Esecuzione" + json.dumps(event) )
-            post_str = event['body']
-            post = json.loads(post_str)
-            current_timestamp = datetime.datetime.now().isoformat()
-            post['updatedAt'] = current_timestamp
-            #print("Esecuzione post" + json.dumps(post) )
-            ts= TypeSerializer()
-            serialized_post= ts.serialize(post)["M"]
-            #print("Esecuzione serialized_post" + json.dumps(serialized_post) )
-            client = boto3.client('dynamodb')
-            res = client.put_item(TableName=TABLE_NAME,Item=serialized_post)
-            return {'body': json.dumps(res), 'statusCode': 201, 'headers' : {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'*'} }
-  ES12ApiDeleteFunction:
+      Timeout: 500
+
+  ApiDeleteFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !GetAtt ES12APIRole.Arn
+      Role: !GetAtt APIRole.Arn
       Events:
         ApiEvent:
           Type: Api
@@ -294,32 +263,20 @@ Resources:
             Path: /
             Method: delete
             RestApiId:
-              Ref: ES12ApiGateway
-      Runtime: python3.7
-      Handler: index.handler
+              Ref: ApiGateway
+      CodeUri: lambda
+      Handler: dynamo_crud.delete_handler
+      Runtime: python3.8
       MemorySize: 128
       Environment: 
         Variables:
           DynamoName: !Ref DynamoName
-      InlineCode: |
-        import boto3
-        import os
-        import json
-        import datetime
-        from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
-        TABLE_NAME = os.environ['DynamoName'] 
-        def handler(event, context):
-            print("Esecuzione" + json.dumps(event) )
-            post_str = event['body']
-            post = json.loads(post_str)
-            idValue = post['id']
-            client = boto3.client('dynamodb')
-            res = client.delete_item(TableName=TABLE_NAME,Key={ 'id' : { 'S' : idValue } } )
-            return {'body': json.dumps(res), 'statusCode': 201, 'headers' : {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'*'} }
+      Timeout: 500
+
 Outputs:
   StackName:
     Description: Deployed StackName for update
     Value: !Ref AWS::StackName
-  UrlGet:
+  APIEndPoint:
     Description: Endpoint URL API REST
-    Value: !Sub https://${ES12ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
