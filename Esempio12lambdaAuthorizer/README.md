@@ -36,7 +36,7 @@ nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 
 ### Comando caricamento file csv
 ```
-aws s3 cp ./prova.csv s3://alberto-input-es12/INPUT/lista.csv
+aws s3 cp ./lista.csv s3://alberto-input-es12/INPUT/lista.csv
 sam logs --stack-name Esempio12lambdaAuthorizer
 ```
 ### Comandi per la rimozione
