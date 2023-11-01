@@ -1,7 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Esempio di template CloudFormation con tabella Dynamo e CRUD sviluppato con Lambda Function ed esposto con API Manager (AWS::Serverless::Api)
-# nota nel template c'è anche un Bucket S3 e un trigger che carica dati sulla tabella Dynamo
+# copia del Esempio11dynamoApiCrud con in aggiunta la Lambda Authorizer di API Gateway
+# nota: nel template c'è anche un Bucket S3 e un trigger che carica dati sulla tabella Dynamo
+# nota: nel template al Api Gatewat c'è un Lambda Authorizer che valida un token JWT, la password è in chiaro, NON è buona norma!
 
 # see
 # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-api.html
@@ -13,6 +15,10 @@ Description: Esempio di template CloudFormation con tabella Dynamo e CRUD svilup
 # BOTO3:documnetation
 # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item
 
+# Lambda authorizer:
+#see https://aws.amazon.com/it/blogs/compute/announcing-nested-applications-for-aws-sam-and-the-aws-serverless-application-repository/
+#see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-api-apiauth.html
+
 Parameters:
   State:
     Type: String
@@ -23,17 +29,23 @@ Parameters:
   BucketName:
     Type: String
     Description: Nome del bucket
-    Default: alberto-input-es11
+    Default: alberto-input-es12
   DynamoName:
     Type: String
     Description: Nome del DB dynamo
-    Default: dynamo-es11
+    Default: dynamo-es12
   FilePattern:
     Type: String
     Default: INPUT
   Stage:
     Type: String
     Default: dev
+  JwtKey:
+    Type: String
+    Description: Jwt Key
+    Default: Password.1234
+    #NOTA: la password in chiaro non è buona norma, TODO: salvare il parametro cryptato!
+
 Resources:
   Dynamo:
     Type: AWS::DynamoDB::Table
@@ -192,9 +204,9 @@ Resources:
       OpenApiVersion: 3.0.2
       CacheClusterEnabled: false
       CacheClusterSize: '0.5'
-      Cors:
-        AllowMethods: "'POST, GET, DELETE, OPTIONS'"
-        AllowOrigins: "'*'"
+      Cors: #https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-cors-console.html
+        AllowMethods: "'POST, GET, DELETE'" #, OPTIONS
+        AllowOrigin: "'*'" 
         AllowHeaders: "'*'"
         MaxAge: "'600'"
       MethodSettings:
@@ -210,6 +222,19 @@ Resources:
           HttpMethod: DELETE
           CachingEnabled: false
           CacheTtlInSeconds: 300
+#see https://aws.amazon.com/it/blogs/compute/announcing-nested-applications-for-aws-sam-and-the-aws-serverless-application-repository/
+#see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-api-apiauth.html
+      Auth:
+        DefaultAuthorizer: MyLambdaRequestAuthorizer
+        AddApiKeyRequiredToCorsPreflight : false
+        AddDefaultAuthorizerToCorsPreflight: false
+        Authorizers:
+          MyLambdaRequestAuthorizer:
+            FunctionPayloadType: REQUEST
+            FunctionArn: !GetAtt LambdaAuthorizer.Arn
+            Identity:
+              Headers:
+                - Authorization
 
   ApiGetFunction: # Adds a GET api endpoint at "/" to the ApiGateway via an Api event
     Type: AWS::Serverless::Function
@@ -273,6 +298,53 @@ Resources:
         Variables:
           DynamoName: !Ref DynamoName
       Timeout: 500
+
+# componenti del LambdaAuthorizer
+  LambdaAuthorizer: 
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.8
+      Role: !GetAtt LambdaAuthorizerIAMRole.Arn
+      CodeUri: lambda
+      Handler: authJwt.entrypoint
+      Runtime: python3.8
+      MemorySize: 512
+      Timeout: 900
+      Environment: 
+        Variables:
+          JwtKey: !Ref JwtKey
+      Description: LambdaAuthorizer
+  LambdaAuthorizerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LambdaAuthorizer
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*/*
+  LambdaAuthorizerIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
 
 Outputs:
   StackName:

@@ -44,12 +44,12 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 09 **parametriSSM**: uso del template 02 *istanze EC2* ma con un parametro custom recuperato dal servizio SSM
 - 10 **apiGateway**: creazione di un servizio REST, esposto con Api Gateway e Lambda function come back-end
 - 11 **dynamoApiCrud**: tabella dynamo con micro-servizi per scrivere e leggere nella tabella (con Api Gateway e Lambda function)
+- 12 **lambdaAuthorizer**: esempio precedente con in aggiunta una Lambda Authorizer per Api Gateway
+
 
 ## Esempi di template CloudFormation in fase di revisione
 - 13: lambda(Py) per gestire file (leggere e scrivere)
 - 15: lambda in Java-maven
-- 16: lambda(Py) esposta con API Gateway che valida un token Jwt internamente
-- 16b: lambda(Py) esposta con API Gateway e Lambda Authorizer che valida un token Jwt
 - 17: lambda(Py) che esegue unzip di un file da un bucket ad un altro
 - 18: template di istanza EC2 con parametri recuperati dal SSM Parameter Store
 - 21: template che crea un coda con il Servizio SQS e due semplici lambda in PY per leggere e scrivere nella coda
