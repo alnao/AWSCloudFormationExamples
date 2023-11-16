@@ -1,11 +1,4 @@
-# Esempio12lambdaAuthorizer
-Creazione di una tabella Dynamo con API gateway che espone un CRUD in lambda function. 
-Nel template anche un bucketS3 e un trigger-lambda che dati da un csv caricato nella tabella
-
-
-Questo template è una copia del Esempio11dynamoApiCrud con in aggiunta la Lambda Authorizer di API Gateway
-
-
+# AWSCloudFormationExamples
 AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
 

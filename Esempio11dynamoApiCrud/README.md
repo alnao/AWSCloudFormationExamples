@@ -1,13 +1,10 @@
-# Esempio11dynamoApiCrud
-Creazione di una tabella Dynamo con API gateway che espone un CRUD in lambda function. 
-Nel template anche un bucketS3 e un trigger-lambda che dati da un csv caricato nella tabella
-
-
+# AWSCloudFormationExamples
 AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
 
+
 ## Esempio12dynamoApiCrud
-Componenti di questo template
+Creazione di una tabella Dynamo con API gateway che espone un CRUD in lambda function. Componenti di questo template:
 - tabella DynamoDB
 - bucket di appoggio
 - trigger sul bucket per lanciare la lambda
@@ -17,7 +14,7 @@ Componenti di questo template
 - rest api post per salvare un elemento (post/put)
 - rest api delete per cancellare un elemento
 - regola IAM per permetetere alle lambda API di scrivere nella tabella Dynamo
-notare che cancellando il tempalte si cancella anche la tabella DynamoDB e tutto il contenuto.
+notare che rimuovendo lo stack, vengono cancellati anche la tabella DynamoDB e tutto il contenuto.
 
 ### Comandi per la creazione con nome parametrico
 ```

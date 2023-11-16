@@ -35,7 +35,6 @@ sam delete --stack-name esempio1buckets3
 Nessun contenuto in questo repository è stato creato con IA o automaticamente, tutto il codice è stato scritto con molta pazienza da Alberto Nao. Se il codice è stato preso da altri siti/progetti è sempre indicata la fonte. Per maggior informazioni visitare il sito [alnao.it](https://www.alnao.it/).
 
 ## License
-**Free Software, Hell Yeah!**
-See [MIT](https://it.wikipedia.org/wiki/Licenza_MIT)
-
-Copyright (c) 2023 AlNao.it
+Public projects 
+<a href="https://it.wikipedia.org/wiki/GNU_General_Public_License"  valign="middle"><img src="https://img.shields.io/badge/License-GNU-blue" style="height:22px;"  valign="middle"></a> 
+*Free Software!*

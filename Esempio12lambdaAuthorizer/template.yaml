@@ -196,7 +196,6 @@ Resources:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: 'arn:aws:logs:*:*:*'
-
   ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
@@ -298,7 +297,6 @@ Resources:
         Variables:
           DynamoName: !Ref DynamoName
       Timeout: 500
-
 # componenti del LambdaAuthorizer
   LambdaAuthorizer: 
     Type: AWS::Serverless::Function
@@ -345,7 +343,6 @@ Resources:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: 'arn:aws:logs:*:*:*'
-
 Outputs:
   StackName:
     Description: Deployed StackName for update
