@@ -47,7 +47,7 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 11 **Dynamo ApiCrud**: tabella dynamo con micro-servizi per scrivere e leggere nella tabella (con Api Gateway e Lambda function)
 - 12 **Lambda Authorizer**: esempio precedente con in aggiunta una Lambda Authorizer per Api Gateway
 - 13 **Lambda Application S3-Utils**: lambda application con lambda function per gestire contenuti S3 (api get, presigned url, excel2csv, unzip, uploader), il template uploader prevede anche un topic-SNS
-
+- 14 **RDS**: creazione di un database MySql con un SecurityGroup dedicato alle regole di accesso
 
 ## Esempi di template CloudFormation in fase di revisione
 - 15: lambda in Java-maven
