@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Sample SAM Template for sam-app
+Description: Lambda function in Java e API Http esposta
 # More info about Globals https://github.com/iceman198/lambda-vscode-java-debug/blob/master/sam-app/template.yaml
 
 Globals:

@@ -48,9 +48,9 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 12 **Lambda Authorizer**: esempio precedente con in aggiunta una Lambda Authorizer per Api Gateway
 - 13 **Lambda Application S3-Utils**: lambda application con lambda function per gestire contenuti S3 (api get, presigned url, excel2csv, unzip, uploader), il template uploader prevede anche un topic-SNS
 - 14 **RDS**: creazione di un database MySql con un SecurityGroup dedicato alle regole di accesso
+- 15 **Lambda Java**: AWS function sviluppata in linguaggio java e compilata con maven
 
 ## Esempi di template CloudFormation in fase di revisione
-- 15: lambda in Java-maven
 - 21: template che crea un coda con il Servizio SQS e due semplici lambda in PY per leggere e scrivere nella coda
 - 22: template che crea una VPC e un VPNendpoint da usare con il client da desktop
 - 23: template che crea una VPC, un RDS MySql e una EC2, nella EC2 viene installato in automatico un Wordpress
