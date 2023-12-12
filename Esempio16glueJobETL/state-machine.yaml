@@ -1,0 +1,39 @@
+---
+StartAt: Excel2csvLambda
+States:
+  Excel2csvLambda:
+    Type: Task
+    Resource: 'arn:aws:states:::lambda:invoke'
+    Parameters:
+      FunctionName: ${Excel2csvLambdaArn}
+      Payload.$: $
+    #ResultPath: $.Last
+    OutputPath: $.Payload
+    Next: ChoiceState
+  ChoiceState:
+    Type: Choice
+    Choices:
+      - Variable: $.flag_processo
+        BooleanEquals: true
+        Next: GlueProcess
+      - Variable: $.flag_processo
+        BooleanEquals: false
+        Next: Concludi
+  GlueProcess:
+    Type: Task
+    Resource: arn:aws:states:::glue:startJobRun.sync
+    Parameters: 
+      JobName: ${GlueProcess}
+      Arguments: 
+        --numero_righe.$: $.numero_righe #States.Format('{}',$.numero_righe)
+        --file_name.$: $.file_name #States.Format('{}',$.file_name)
+    #see https://docs.aws.amazon.com/step-functions/latest/dg/concepts-asl-use-map-state-distributed.html
+    #see https://docs.aws.amazon.com/step-functions/latest/dg/tutorial-get-started-configure-output.html
+    ResultPath: $.glue_job_result
+    ResultSelector:
+      JobRunState.$: $.JobRunState
+    Next: Concludi
+  Concludi:
+    Type: Pass
+    End: true
+...

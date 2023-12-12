@@ -1,0 +1,3 @@
+boxsdk
+openpyxl
+urllib3<2

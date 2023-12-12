@@ -49,6 +49,7 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 13 **Lambda Application S3-Utils**: lambda application con lambda function per gestire contenuti S3 (api get, presigned url, excel2csv, unzip, uploader), il template uploader prevede anche un topic-SNS
 - 14 **RDS**: creazione di un database MySql con un SecurityGroup dedicato alle regole di accesso
 - 15 **Lambda Java**: AWS function sviluppata in linguaggio java e compilata con maven
+- 16 **Job Glue**: definizione Job ETL Glue e una step function che esegue logiche per l'invocazione del Job
 
 ## Esempi di template CloudFormation in fase di revisione
 - 21: template che crea un coda con il Servizio SQS e due semplici lambda in PY per leggere e scrivere nella coda
