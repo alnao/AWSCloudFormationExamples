@@ -29,7 +29,7 @@ Parameters:
   BucketName:
     Type: String
     Description: Nome del bucket
-    Default: alberto-input-es12
+    Default: es12-lambda-auth
   DynamoName:
     Type: String
     Description: Nome del DB dynamo
@@ -343,6 +343,44 @@ Resources:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: 'arn:aws:logs:*:*:*'
+#API LOGIN
+  ApiLoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt APIRole.Arn
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+            RestApiId:
+              Ref: ApiLoginGateway
+      CodeUri: lambda
+      Handler: login.login_handler
+      Runtime: python3.8
+      MemorySize: 128
+      Environment: 
+        Variables:
+          JwtKey: !Ref JwtKey
+      Timeout: 500
+  ApiLoginGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      OpenApiVersion: 3.0.2
+      CacheClusterEnabled: false
+      CacheClusterSize: '0.5'
+      Cors: #https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-cors-console.html
+        AllowMethods: "'GET'" #, OPTIONS
+        AllowOrigin: "'*'" 
+        AllowHeaders: "'*'"
+        MaxAge: "'600'"
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: GET
+          CachingEnabled: false
+          CacheTtlInSeconds: 300
 Outputs:
   StackName:
     Description: Deployed StackName for update
@@ -350,3 +388,6 @@ Outputs:
   APIEndPoint:
     Description: Endpoint URL API REST
     Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+  APILoginEndPoint:
+    Description: Endpoint URL API REST
+    Value: !Sub https://${ApiLoginGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}

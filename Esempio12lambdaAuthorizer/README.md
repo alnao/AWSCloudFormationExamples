@@ -15,6 +15,8 @@ Componenti di questo template
 - regola IAM per permetetere alle lambda API di scrivere nella tabella Dynamo
 - API Gateway di AWS per l'esposizione delle API
 - lambda Authorizer agganciato al API Gateway
+- API Gateway di AWS per l'esposizione di una API specifica per la fase di login
+- lambda per la gestione della login con la creazione di un token JWT valido
 notare che cancellando il tempalte si cancella anche la tabella DynamoDB e tutto il contenuto.
 
 ### Comandi per la creazione con nome parametrico
@@ -29,13 +31,13 @@ nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 
 ### Comando caricamento file csv
 ```
-aws s3 cp ./lista.csv s3://alberto-input-es12/INPUT/lista.csv
+aws s3 cp ./lista.csv s3://es12-lambda-auth/INPUT/lista.csv
 sam logs --stack-name Esempio12lambdaAuthorizer
 ```
 ### Comandi per la rimozione
 ```
-aws s3 rm s3://alberto-input-es12/INPUT/lista.csv
-aws s3 ls s3://alberto-input-es12/
+aws s3 rm s3://es12-lambda-auth/INPUT/lista.csv
+aws s3 ls s3://es12-lambda-auth/
 sam delete --stack-name Esempio12lambdaAuthorizer
 ```
 
