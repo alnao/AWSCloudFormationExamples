@@ -45,11 +45,12 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 09 **Parametri SSM**: uso del template 02 *istanze EC2* ma con un parametro custom recuperato dal servizio SSM
 - 10 **Api Gateway**: creazione di un servizio REST, esposto con Api Gateway e Lambda function come back-end
 - 11 **Dynamo ApiCrud**: tabella dynamo con micro-servizi per scrivere e leggere nella tabella (con Api Gateway e Lambda function)
-- 12 **Lambda Authorizer**: esempio precedente con in aggiunta una Lambda Authorizer per Api Gateway
+- 12 **Lambda Authorizer**: esempio tabella dynamo, CRUD in Lambda Function con in aggiunta una Lambda Authorizer per Api Gateway
 - 13 **Lambda Application S3-Utils**: lambda application con lambda function per gestire contenuti S3 (api get, presigned url, excel2csv, unzip, uploader), il template uploader prevede anche un topic-SNS
 - 14 **RDS**: creazione di un database MySql con un SecurityGroup dedicato alle regole di accesso
 - 15 **Lambda Java**: AWS function sviluppata in linguaggio java e compilata con maven
 - 16 **Job Glue**: definizione Job ETL Glue e una step function che esegue logiche per l'invocazione del Job
+- 17 **Elastic IP**: definizione di un indirizzo IP con Elastic IP assegnato ad una EC2 creata con l'esempio 02
 
 ## Esempi di template CloudFormation in fase di revisione
 - 21: template che crea un coda con il Servizio SQS e due semplici lambda in PY per leggere e scrivere nella coda
