@@ -1,11 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: ES21 SQS e due API in Lambda-Python (producer & consumer della queue)
+Description: Esempio coda SQS e due API in Lambda-Python (producer & consumer della queue), le lambda sono esposte con API Gateway (get e post)
 
 Parameters:
   QueueName:
     Type: String
-    Default: sqs-es1
+    Default: sqs-es18
   StringParameter:
     Type: String
     Default: 'stringa di esempio come parametro'
@@ -14,10 +14,10 @@ Parameters:
     Default: dev
   AccountId:
     Type: String
-    Default: '740456629644'
+    Default: 'xxxxxx'
 
 Resources:
-  ES21sqsQueue:
+  SqsQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Ref QueueName
@@ -26,7 +26,7 @@ Resources:
         -
           Key: StackId
           Value: !Ref AWS::StackId
-  ES21sqsQueueLambdaProducer:
+  SqsQueueLambdaProducer:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda
@@ -39,7 +39,7 @@ Resources:
           StringParameter: !Ref StringParameter
           QueueName: !Ref QueueName
           AccountId: !Ref AccountId
-      Role: !GetAtt ES21sqsQueueLambdaIamRole.Arn
+      Role: !GetAtt SqsQueueLambdaIamRole.Arn
       Events:
         ApiEvent:
           Type: Api
@@ -47,8 +47,8 @@ Resources:
             Path: /
             Method: post
             RestApiId:
-              Ref: ES21sqsQueueApiGateway
-  ES21sqsQueueLambdaConsumer:
+              Ref: SqsQueueApiGateway
+  SqsQueueLambdaConsumer:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda
@@ -61,7 +61,7 @@ Resources:
           StringParameter: !Ref StringParameter
           QueueName: !Ref QueueName
           AccountId: !Ref AccountId
-      Role: !GetAtt ES21sqsQueueLambdaIamRole.Arn
+      Role: !GetAtt SqsQueueLambdaIamRole.Arn
       Events:
         ApiEvent:
           Type: Api
@@ -69,8 +69,8 @@ Resources:
             Path: /
             Method: get
             RestApiId:
-              Ref: ES21sqsQueueApiGateway
-  ES21sqsQueueLambdaIamRole:
+              Ref: SqsQueueApiGateway
+  SqsQueueLambdaIamRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -95,14 +95,14 @@ Resources:
                   - sqs:ReceiveMessage
                   - sqs:DeleteMessage
                 Resource:
-                  - !GetAtt ES21sqsQueue.Arn
+                  - !GetAtt SqsQueue.Arn
               - Effect: Allow
                 Action:
                   - 'logs:CreateLogGroup'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: 'arn:aws:logs:*:*:*'
-  ES21sqsQueueApiGateway:
+  SqsQueueApiGateway:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
@@ -128,6 +128,6 @@ Outputs:
     Value: !Ref AWS::StackName
   UrlGet:
     Description: Endpoint URL API REST
-    Value: !Sub https://${ES21sqsQueueApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+    Value: !Sub https://${SqsQueueApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
 
 

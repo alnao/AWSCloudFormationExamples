@@ -12,7 +12,7 @@ def entrypoint(event, context):
         QueueUrl=url,
         AttributeNames=['All'],
         MessageAttributeNames=['All'],
-        MaxNumberOfMessages=1, #1 or more
+        MaxNumberOfMessages=1, #1 or 10
         VisibilityTimeout=0,
         WaitTimeSeconds=1,
     )

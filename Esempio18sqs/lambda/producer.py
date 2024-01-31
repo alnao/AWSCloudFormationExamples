@@ -17,9 +17,9 @@ def entrypoint(event, context):
     else:
         messageEvent="no message event"
     oggetto={ 'createdAt' : str(datetime.now()) , 'StringParameter' : StringParameter , 'messageEvent' : messageEvent}
-    queue=sqs.send_message(
+    response=sqs.send_message(
         QueueUrl=url,
         DelaySeconds=1,
         MessageBody= json.dumps(oggetto) 
     )
-    return {'statusCode': 200 , 'body': json.dumps(oggetto)}
+    return {'statusCode': 200 , 'body': json.dumps(response)}
