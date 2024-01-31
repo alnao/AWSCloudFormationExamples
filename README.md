@@ -51,9 +51,9 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 15 **Lambda Java**: AWS function sviluppata in linguaggio java e compilata con maven
 - 16 **Job Glue**: definizione Job ETL Glue e una step function che esegue logiche per l'invocazione del Job
 - 17 **Elastic IP**: definizione di un indirizzo IP con Elastic IP assegnato ad una EC2 creata con l'esempio 02
+- 18 **SQS**: definizione di una coda SQS e due Lambda-API producer e consumer
 
 ## Esempi di template CloudFormation in fase di revisione
-- 21: template che crea un coda con il Servizio SQS e due semplici lambda in PY per leggere e scrivere nella coda
 - 22: template che crea una VPC e un VPNendpoint da usare con il client da desktop
 - 23: template che crea una VPC, un RDS MySql e una EC2, nella EC2 viene installato in automatico un Wordpress
 - 24: template che crea una VPC, un EFS e una istanza EC2 che monta il volume in automatico nel user-data
