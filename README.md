@@ -52,11 +52,11 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 16 **Job Glue**: definizione Job ETL Glue e una step function che esegue logiche per l'invocazione del Job
 - 17 **Elastic IP**: definizione di un indirizzo IP con Elastic IP assegnato ad una EC2 creata con l'esempio 02
 - 18 **SQS**: definizione di una coda SQS e due Lambda-API producer e consumer
+- 19 **EFS**: un file system EFS e una istanza EC2 che monta il volume in automatico nel user-data
 
 ## Esempi di template CloudFormation in fase di revisione
 - 22: template che crea una VPC e un VPNendpoint da usare con il client da desktop
 - 23: template che crea una VPC, un RDS MySql e una EC2, nella EC2 viene installato in automatico un Wordpress
-- 24: template che crea una VPC, un EFS e una istanza EC2 che monta il volume in automatico nel user-data
 - 25: template che crea un bilanciatore con istanze che eseguono un Wodpress per ciascuna
 - 26: template che crea un bilanciatere tra istanze EC2 che caricano un unico EFS e un unico RDS
 
