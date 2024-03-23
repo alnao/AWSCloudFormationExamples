@@ -53,6 +53,7 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws), see [www.alnao
 - 17 **Elastic IP**: definizione di un indirizzo IP con Elastic IP assegnato ad una EC2 creata con l'esempio 02
 - 18 **SQS**: definizione di una coda SQS e due Lambda-API producer e consumer
 - 19 **EFS**: un file system EFS e una istanza EC2 che monta il volume in automatico nel user-data
+- 20 **ECR**: un repository ECR 
 
 ## Esempi di template CloudFormation in fase di revisione
 - 22: template che crea una VPC e un VPNendpoint da usare con il client da desktop
