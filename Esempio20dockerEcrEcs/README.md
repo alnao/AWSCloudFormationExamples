@@ -3,7 +3,7 @@
 AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 
 
-Creazione di un repository ECR e lancio task con ECS
+Creazione di un repository ECR e infrastruttura ECS
 
 
 ## Comandi per la creazione
@@ -12,7 +12,7 @@ Creazione di un repository ECR e lancio task con ECS
 sam validate
 sam build
 sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket formazione-alberto
-sam deploy --template-file .\packagedV1.yaml --stack-name Esempio20dockerEcrEcs --capabilities CAPABILITY_IAM
+sam deploy --template-file .\packagedV1.yaml --stack-name Esempio20dockerEcrEcs --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
 
 ```
 nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
