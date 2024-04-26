@@ -1,19 +1,16 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: ECR e ECS using Cloudformation
+# see aws examples from https://github.com/aws-samples/ecs-refarch-cloudformation/blob/master/master.yaml
 
 Parameters:
   RepoName: 
     Description: Name for ecr repo 
     Type: String
-    Default: ecs-example
-  VPC:
-    Description: The VPC that the ECS cluster is deployed to
-    Type: AWS::EC2::VPC::Id
-    Default: vpc-xxxxxxxxxxxx
+    Default: formazione-ecs-repo-uno
   DesiredCount:
     Description: How many instances of this task should we run across our cluster?
     Type: Number
-    Default: 1
+    Default: 2
   Path:
     Description: The path to register with the Application Load Balancer
     Type: String
@@ -21,11 +18,19 @@ Parameters:
   ImagePath:
     Description: The path in ECR
     Type: String
-    Default: xxxxxxxx.dkr.ecr.eu-west-1.amazonaws.com/xxxxxxxxxx:latest
-  Subnets:
-    Description: List of subnet 
+    Default: xxxx.dkr.ecr.eu-west-1.amazonaws.com/ecs-repo-uno
+  ContainerName:
     Type: String
-    Default: subnet-xxxxxxxxxxx,subnet-yyyyyyyyyyyy
+    Default: ecs-repo-uno
+# old parameters if VPC availabile
+#  VPC:
+#    Description: The VPC that the ECS cluster is deployed to
+#    Type: AWS::EC2::VPC::Id
+#    Default: vpc-xxxxxx
+#  Subnets:
+#    Description: List of subnet 
+#    Type: String
+#    Default: subnet-xxxxxxxx,subnet-yyyyyyyyyy
 
 Resources:
 #  EcrRepo:
@@ -35,24 +40,37 @@ Resources:
 #      ImageScanningConfiguration: 
 #        ScanOnPush: true
 
+
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/ecs-refarch-cloudformation/infrastructure/vpc.yaml
+      Parameters:
+        EnvironmentName: !Ref AWS::StackName
+        VpcCIDR: 10.180.0.0/16
+        PublicSubnet1CIDR: 10.180.8.0/21
+        PublicSubnet2CIDR: 10.180.16.0/21
+        PrivateSubnet1CIDR: 10.180.24.0/21
+        PrivateSubnet2CIDR: 10.180.32.0/21
+
   #examples from https://github.com/aws-samples/ecs-refarch-cloudformation/blob/master/master.yaml
-  SecurityGroups:
+  SecurityGroups: #security-groups.yaml
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3.amazonaws.com/ecs-refarch-cloudformation/infrastructure/security-groups.yaml
       Parameters:
         EnvironmentName: !Ref AWS::StackName
-        VPC: !Ref VPC
-  ALB:
+        VPC: !GetAtt VPC.Outputs.VPC #!Ref VPC
+  ALB: #load-balancers.yaml
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3.amazonaws.com/ecs-refarch-cloudformation/infrastructure/load-balancers.yaml
       Parameters:
         EnvironmentName: !Ref AWS::StackName
-        VPC: !Ref VPC
-        Subnets: !Ref Subnets
+        VPC: !GetAtt VPC.Outputs.VPC #!Ref VPC
+        Subnets: !GetAtt VPC.Outputs.PublicSubnets #!Ref Subnets #important must be public
         SecurityGroup: !GetAtt SecurityGroups.Outputs.LoadBalancerSecurityGroup
-  ECS:
+  ECS: #ecs-cluster.yaml
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3.amazonaws.com/ecs-refarch-cloudformation/infrastructure/ecs-cluster.yaml
@@ -60,10 +78,9 @@ Resources:
         EnvironmentName: !Ref AWS::StackName
         InstanceType: t2.micro
         ClusterSize: !Ref DesiredCount
-        VPC: !Ref VPC
+        VPC: !GetAtt VPC.Outputs.VPC #!Ref VPC
         SecurityGroup: !GetAtt SecurityGroups.Outputs.ECSHostSecurityGroup
-        Subnets: !Ref Subnets
-
+        Subnets: !GetAtt VPC.Outputs.PrivateSubnets #!Ref Subnets #should be private
   # example https://s3.amazonaws.com/ecs-refarch-cloudformation/services/product-service/service.yaml
   EcsService:
     Type: AWS::ECS::Service
@@ -74,18 +91,19 @@ Resources:
       DesiredCount: !Ref DesiredCount
       TaskDefinition: !Ref TaskDefinition
       LoadBalancers:
-        - ContainerName: "product-service"
+        - ContainerName: !Ref ContainerName # "persone-service"
           ContainerPort: 80
           TargetGroupArn: !Ref TargetGroup
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: product-service
+      Family: !Ref ContainerName # persone-service
       ContainerDefinitions:
-        - Name: product-service
+        - Name: !Ref ContainerName #  persone-service
           Essential: true
           Image: !Ref ImagePath
-          Memory: 128
+          Cpu: 256
+          Memory: 512 #see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskdefinition.html#cfn-ecs-taskdefinition-cpu
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:
@@ -101,7 +119,7 @@ Resources:
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      VpcId: !Ref VPC
+      VpcId: !GetAtt VPC.Outputs.VPC #!Ref VPC
       Port: 80
       Protocol: HTTP
       Matcher:
@@ -161,3 +179,7 @@ Resources:
                   },
                 ],
             }
+Outputs:
+  ServiceUrl:
+    Description: The URL endpoint for the website service
+    Value: !Join ["", [!GetAtt ALB.Outputs.LoadBalancerUrl, "/"]]

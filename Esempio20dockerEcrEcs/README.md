@@ -6,6 +6,12 @@ AWS CloudFormation Examples - vedere i prerequisiti nel README generale
 Creazione di un repository ECR e infrastruttura ECS
 
 
+L'immagine di prova usata in questo esempio è disponibile nel repository
+```
+https://github.com/alnao/PythonExamples/tree/master/Docker/03ApiPersoneNoDb
+```
+
+
 ## Comandi per la creazione
 
 ```
@@ -16,6 +22,17 @@ sam deploy --template-file .\packagedV1.yaml --stack-name Esempio20dockerEcrEcs 
 
 ```
 nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
+
+
+## Comandi per i test
+Per eseguire test del servizio 
+```
+$ curl  Esempio20dockerEcrEcs-xxxxxxxxx.eu-west-1.elb.amazonaws.com/persone
+$ curl -d '{"nome":"Andrea", "cognome":"Nao"}' -H "Content-Type: application/json" -X POST Esempio20dockerEcrEcs-xxxxxxxxx.eu-west-1.elb.amazonaws.com/persone
+$ curl  Esempio20dockerEcrEcs-xxxxxxxxx.eu-west-1.elb.amazonaws.com/persone
+```
+
+
 
 ## Comandi per la rimozione
 ```
