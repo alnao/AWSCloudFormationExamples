@@ -1,3 +1,5 @@
+# AWS Examples 
+
 <p align="center">
     <img src="https://img.shields.io/badge/AWS-%23FF9900?style=plastic&logo=AmazonAWS&logoColor=black" style="height:28px;" />
     <img src="https://img.shields.io/badge/Ec2-%23FF9900?style=plastic&logo=amazon-ec2&logoColor=black" style="height:28px;" />
@@ -10,7 +12,7 @@
     <img src="https://img.shields.io/badge/SQS-%23FF4F8B?style=plastic&logo=amazon-sqs&logoColor=black" style="height:28px;" />
 </p>
 
-AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws)
+AWS Examples by [AlNao](https://www.alnao.it/aws)
 
 
 # Prerequisiti
