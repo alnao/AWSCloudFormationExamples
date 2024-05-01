@@ -10,14 +10,8 @@
     <img src="https://img.shields.io/badge/SQS-%23FF4F8B?style=plastic&logo=amazon-sqs&logoColor=black" style="height:28px;" />
 </p>
 
-# Indice
 AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws)
 
-- [Prerequisiti](#Prerequisiti)
-- [Lista esempi](#Lista-esempi)
-  - [Bucket S3](#Bucket-S3)
-- [Esempi in fase di revisione](#Esempi-in-fase-di-revisione)
-- [AlNao.it e licenza](#AlNao.it)
 
 # Prerequisiti
 - Un account AWS attivo
@@ -34,49 +28,7 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws)
 
 
 # Lista esempi
-  
-
-## Bucket S3
-* Documentazione [CLI](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/s3/cp.html)
-  * Comandi AWS-CLI per creare e distruggere un bucket
-    ```
-    aws s3 mb s3://bucket-name
-    aws s3 ls
-    aws s3 rb s3://bucket-name
-    ```
-  * Comandi AWS-CLI per gestire gli oggetti contenuti in un bucket
-    ```
-    aws s3 ls bucket-name
-    aws s3 mv s3://bucket-name/example.txt s3://bucket-name2/
-    aws s3 mv s3://bucket-name/filename.txt ./
-    aws s3 cp s3://bucket-name/example.txt s3://my-bucket/
-    ```
-  * Comandi AWS-CLI per sincronizzare una cartella locale ad un bucket
-    ```
-    aws s3 sync . s3://my-bucket/path
-    ```
-  * Svuotare un bucket
-    ```
-    aws s3 rm s3://my-bucket/path --recursive
-    ```
-* Documentazione SDK 
-  * Esempio Python per la gestione di S3
-    ```
-    https://github.com/alnao/AwsAlNaoConsole/blob/master/awsPyConsole/sdk/s3_bucket.py
-    ```
-* Documentazione [CDK in Python](https://docs.aws.amazon.com/it_it/cdk/v2/guide/work-with-cdk-python.html)
-  * Esempio Python per creazione di Bucket 
-    ```
-    https://github.com/alnao/PythonExamples/tree/master/AWSCDK/Cdk01-bucketS3
-    ```
-* Documentazione [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html)
-  ```
-  S3Bucket:
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      BucketName: !Ref NomeBucket
-  ```
-
+- 01 **Bucket S3**: creazione e gestione di un bucket S3
 
 ## Esempi in fase di revisione
 - 02 **Istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
@@ -104,9 +56,11 @@ AWS CloudFormation Examples by [AlNao](https://www.alnao.it/aws)
 - 26: template che crea un bilanciatere tra istanze EC2 che caricano un unico EFS e un unico RDS
 
 
-# License
+
+# AlNao.it
 Nessun contenuto in questo repository è stato creato con IA o automaticamente, tutto il codice è stato scritto con molta pazienza da Alberto Nao. Se il codice è stato preso da altri siti/progetti è sempre indicata la fonte. Per maggior informazioni visitare il sito [alnao.it](https://www.alnao.it/).
 
+## License
 Public projects 
 <a href="https://it.wikipedia.org/wiki/GNU_General_Public_License"  valign="middle"><img src="https://img.shields.io/badge/License-GNU-blue" style="height:22px;"  valign="middle"></a> 
 *Free Software!*
