@@ -1,11 +1,13 @@
 #Intestazione con la descrizione
 AWSTemplateFormatVersion: 2010-09-09
 Description: Template per creare un semplice bucket S3 con il nome parametrico
+#SEE Documentation https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
+
 #blocco Parametri
 Parameters:
   NomeBucket:
     Type: String
-    Default: esempio01buckets3
+    Default: esempio01-bucket-s3
     Description: Nome del bucket
     MinLength: 9
 #blocco Risorse

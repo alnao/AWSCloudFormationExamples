@@ -1,34 +1,31 @@
-# Esempio01bucketS3
-Creazione di un bucket semplice bucket S3 con il nome parametrico.
-Template eseguibile in Console Web di AWS oppure tramite i comandi CLI-SAM:
+# Esempio01-BucketS3
+Creazione di un semplice bucket S3 con il nome parametrico.
 
-
-AWS CloudFormation Examples - vedere i prerequisiti nel README generale
-
+AWS Examples - vedere i prerequisiti nel README generale
 
 ## Comandi per la creazione
-
-
 ```
 sam validate
 sam build
-sam deploy --stack-name esempio1buckets3 --capabilities CAPABILITY_IAM
+sam deploy --stack-name aws01-bucket-s3 --capabilities CAPABILITY_IAM
 ```
 nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM
 
-
 ## Comando per personalizzare il nome del bucket
-
 ```
-sam deploy --stack-name esempio1buckets3 --capabilities CAPABILITY_IAM --parameter-overrides SourceBucket=esempio3
+sam deploy --stack-name aws01-bucket-s3 --capabilities CAPABILITY_IAM --parameter-overrides NomeBucket=bucket-specific-name
 ```
 
+## Comando per la verifica del bucket
+```
+aws s3 ls 
+aws s3 ls esempio01-bucket-s3
+aws cloudformation list-stack-resources --stack-name aws01-bucket-s3 --output text
+```
 
 ## Comandi per la distruzione dello stack
-
-
 ```
-sam delete --stack-name esempio1buckets3
+sam delete --stack-name aws01-bucket-s3
 ```
 
 # AlNao.it
