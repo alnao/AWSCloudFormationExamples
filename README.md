@@ -14,20 +14,17 @@
 
 AWS Examples by [AlNao](https://www.alnao.it/aws)
 
-
 # Prerequisiti
 - Un account AWS attivo
-- La AWS-CLI installata, [documentazione ufficiale](https://docs.aws.amazon.com/it_it/cli/v1/userguide/cli-chap-install.html)
-- Utenza tecnica di tipo programmatico configurata su IAM con permessi di esecuzione di CloudFormation e configurazione della AWS-CLI con il comando
+- La AWS-CLI installata, [documentazione ufficiale](https://docs.aws.amazon.com/it_it/cli/v1/userguide/cli-chap-install.html) con una utenza tecnica di tipo programmatico configurata su IAM con permessi di esecuzione di CloudFormation e configurazione della AWS-CLI con il comando
     - ```aws configuration```
 - La AWS-CLI-SAM installata correttamente, [documentazione ufficiale](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 - Per ogni template, se non indicato diversamente, i comandi da eseguire per eseguire il deploy sono:
   - ```sam validate```
   - ```sam build```
   - ```sam deploy --template-file .\packagedV1.yaml --stack-name <esempio00name> --capabilities CAPABILITY_IAM```
-- Se si tratta di template con più files tra build e deploy è indispensabile eseguire il comando di package:
+- Se si tratta di template con più files è indispensabile eseguire il comando di package tra i comandi di build e deploy:
   - ```sam package --output-template-file <packagedV1.yaml> --s3-prefix <repository-path> --s3-bucket <bucket-name>```
-
 
 # Lista esempi
 - 01 **Bucket S3**: creazione e gestione di un bucket S3
@@ -56,7 +53,6 @@ AWS Examples by [AlNao](https://www.alnao.it/aws)
 - 23: template che crea una VPC, un RDS MySql e una EC2, nella EC2 viene installato in automatico un Wordpress
 - 25: template che crea un bilanciatore con istanze che eseguono un Wodpress per ciascuna
 - 26: template che crea un bilanciatere tra istanze EC2 che caricano un unico EFS e un unico RDS
-
 
 
 # AlNao.it

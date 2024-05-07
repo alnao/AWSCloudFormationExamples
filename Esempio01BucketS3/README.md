@@ -54,16 +54,6 @@
   ```
   aws s3 rm s3://my-bucket/path --recursive
   ```
-## SDK e CDK
-* Esempio SDK in python:
-  ```
-  https://github.com/alnao/AwsAlNaoConsole/blob/master/awsPyConsole/sdk/s3_bucket.py
-  ```
-* Esempio [CDK in Python](https://docs.aws.amazon.com/it_it/cdk/v2/guide/work-with-cdk-python.html):
-  ```
-  https://github.com/alnao/PythonExamples/tree/master/AWSCDK/Cdk01-bucketS3
-  ```
-
 
 
 # AlNao.it
