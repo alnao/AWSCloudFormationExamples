@@ -9,7 +9,7 @@
   Properties:
       BucketName: !Ref NomeBucket
   ```
-* Comandi per la creazione
+* Comandi per la creazione dello stack
   ```
   sam validate
   sam build
@@ -26,27 +26,27 @@
   aws s3 ls esempio01-bucket-s3
   aws cloudformation list-stack-resources --stack-name aws01-bucket-s3 --output text
   ```
-* Comando per la rimozione
+* Comando per la rimozione dello stack
   ```
   sam delete --stack-name aws01-bucket-s3
   ```
 
 ## Comandi CLI
 * Documentazione [CLI](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/s3/cp.html)
-* Comandi AWS-CLI per creare e distruggere un bucket
+* Creare e distruggere un bucket
   ```
   aws s3 mb s3://bucket-name
   aws s3 ls
   aws s3 rb s3://bucket-name
   ```
-* Comandi AWS-CLI per gestire gli oggetti contenuti in un bucket
+* Gestire gli oggetti contenuti in un bucket
   ```
   aws s3 ls bucket-name
   aws s3 mv s3://bucket-name/example.txt s3://bucket-name2/
   aws s3 mv s3://bucket-name/filename.txt ./
   aws s3 cp s3://bucket-name/example.txt s3://my-bucket/
   ```
-* Comandi AWS-CLI per sincronizzare una cartella locale ad un bucket
+* Sincronizzare una cartella locale ad un bucket
   ```
   aws s3 sync . s3://my-bucket/path
   ```

@@ -120,4 +120,3 @@ Outputs:
   PublicIP:
     Description: Public IP address of the newly created EC2 instance
     Value: !GetAtt [EC2Instance, PublicIp]
-#ssh ec2-user@34.245.37.120 -i /C/Transito/000_FILES/Keys/20230116_Formazione/AlbertoNaoFormazione.pem
