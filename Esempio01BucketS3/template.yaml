@@ -1,7 +1,7 @@
 #Intestazione con la descrizione
 AWSTemplateFormatVersion: 2010-09-09
-Description: Template per creare un semplice bucket S3 con il nome parametrico
-#SEE Documentation https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
+Description: AWS CloudFormation Examples by AlNao - 01 BucketS3
+# see documentation https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
 
 #blocco Parametri
 Parameters:
@@ -21,3 +21,6 @@ Outputs:
   S3Bucket:
     Value: !GetAtt S3Bucket.Arn
     Description: S3 bucket ARN
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName

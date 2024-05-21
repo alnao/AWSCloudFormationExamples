@@ -1,10 +1,8 @@
-
 AWSTemplateFormatVersion: 2010-09-09
-Description: Template S3 hosted website con BucketPolicy
-# questo template è ispirato all'esempio nel sito ufficiale 
-# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-policy.html'
-# per le regole ACL 
-# https://repost.aws/knowledge-center/cloudformation-objectownership-acl-error
+Description: AWS CloudFormation Examples by AlNao - 03 BucketS3 con WebSite
+# See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-policy.html'
+# See https://repost.aws/knowledge-center/cloudformation-objectownership-acl-error
+
 Parameters:
   NomeBucket:
     Type: String
@@ -70,3 +68,6 @@ Outputs:
           - S3Bucket
           - DomainName
     Description: Name of S3 bucket to hold website content
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName

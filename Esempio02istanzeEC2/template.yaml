@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Template per crare una istanza EC2
-#Questo si ispira al template ufficiale di esempio
-#https://github.com/awslabs/aws-cloudformation-templates/blob/master/aws/services/EC2/EC2InstanceWithSecurityGroupSample.yaml
-#con in aggiunta la configurazione di rete su una VPC e una Subnet specifica (questo esempio non funziona nella VPC di default).
-#In questo esempio presente anche uno script user-data per la creazione di un web-server con una pagina di prova
-#e il comando cfn-signal per la conferma a CloudFormation che l'istanza è correttamente avviata.'
+Description: AWS CloudFormation Examples by AlNao - 02 Istanze EC2
+# SEE https://github.com/awslabs/aws-cloudformation-templates/blob/master/aws/services/EC2/EC2InstanceWithSecurityGroupSample.yaml
+# con in aggiunta la configurazione di rete su una VPC e una Subnet specifica (questo esempio non funziona nella VPC di default).
+# In questo esempio presente anche uno script user-data per la creazione di un web-server con una pagina di prova
+# e il comando cfn-signal per la conferma a CloudFormation che l'istanza è correttamente avviata.
+
 Parameters:
   SubnetId:
     Description: 'Please choose a Subnet Id'
@@ -120,3 +120,6 @@ Outputs:
   PublicIP:
     Description: Public IP address of the newly created EC2 instance
     Value: !GetAtt [EC2Instance, PublicIp]
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName

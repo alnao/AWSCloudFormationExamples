@@ -25,21 +25,22 @@ AWS Examples by [AlNao](https://www.alnao.it/aws)
   - ```sam deploy --template-file .\packagedV1.yaml --stack-name <esempio00name> --capabilities CAPABILITY_IAM```
 - Se si tratta di template con più files è indispensabile eseguire il comando di package tra i comandi di build e deploy:
   - ```sam package --output-template-file <packagedV1.yaml> --s3-prefix <repository-path> --s3-bucket <bucket-name>```
+- Se nei template sono presenti regole IAM vedere sezione "Capabilities"
 
 # Lista esempi
 - 01 **Bucket S3**: creazione e gestione di un bucket S3
+- 02 **Istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
+- 03 **WebSite con S3**: bucket S3 pubblicamente accessibile con un hosted-website (senza CloudFront)
 
 ## Esempi in fase di revisione
-- 02 **Istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
-- 03 **Bucket S3 sito**: bucket pubblicamente accessibile e hosted website (senza CloudFront)
-- 04 **Lambda con notifica s3**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge)
-- 05 **Condition**: istanza EC2 con creazione di volumi condizionata da un parametro di ambiente (dev/prov)
-- 06 **EventBridge**: due regole EventBridge (trigger & cron) per l'invocazioni di Lambda Function 
-- 07 **CloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
-- 08 **Step Function**: definizione di una step function, invocata da un EventBridge-Lambda, i passi eseguiti dalla macchina a stati sono: copia un file, cancellazione del file originale e poi esecuzione di una lambda function
-- 09 **Parametri SSM**: uso del template 02 *istanze EC2* ma con un parametro custom recuperato dal servizio SSM
+- 04 **WebSite con CloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
+- 05 **Conditions**: istanza EC2 con creazione di volumi condizionata da un parametro di ambiente (dev/prov)
+- 06 **Parametri SSM**: uso del template 02 *istanze EC2* ma con un parametro custom recuperato dal servizio SSM
+- 07 **Lambda**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge)
+- 08 **EventBridge**: due regole EventBridge (trigger & cron) per l'invocazioni di Lambda Function 
+- 09 **Step Function**: definizione di una step function, invocata da un EventBridge-Lambda, i passi eseguiti dalla macchina a stati sono: copia un file, cancellazione del file originale e poi esecuzione di una lambda function
 - 10 **Api Gateway**: creazione di un servizio REST, esposto con Api Gateway e Lambda function come back-end
-- 11 **Dynamo ApiCrud**: tabella dynamo con micro-servizi per scrivere e leggere nella tabella (con Api Gateway e Lambda function)
+- 11 **Dynamo**: tabella dynamo con micro-servizi per scrivere e leggere nella tabella (con Api Gateway e Lambda function)
 - 12 **Lambda Authorizer**: esempio tabella dynamo, CRUD in Lambda Function con in aggiunta una Lambda Authorizer per Api Gateway
 - 13 **Lambda Application S3-Utils**: lambda application con lambda function per gestire contenuti S3 (api get, presigned url, excel2csv, unzip, uploader), il template uploader prevede anche un topic-SNS
 - 14 **RDS**: creazione di un database MySql con un SecurityGroup dedicato alle regole di accesso
@@ -53,6 +54,117 @@ AWS Examples by [AlNao](https://www.alnao.it/aws)
 - 23: template che crea una VPC, un RDS MySql e una EC2, nella EC2 viene installato in automatico un Wordpress
 - 25: template che crea un bilanciatore con istanze che eseguono un Wodpress per ciascuna
 - 26: template che crea un bilanciatere tra istanze EC2 che caricano un unico EFS e un unico RDS
+
+
+# Note su CloudFormation & YAML
+Facendo riferimento alla [documentazione ufficiale](https://docs.aws.amazon.com/cloudformation/), CloudFormation è un servizio Iaac dichiarativo in YAML (anche in JSON *ma meglio non usarlo*). La base della sintassi di CloudFormation in YAML può essere riassunta in questi punti:
+* **Template di partenza** con le tre sezioni principali (parametri, risorse e output) ma solo risorse è veramente obbligatorio
+  ```
+  AWSTemplateFormatVersion: 2010-09-09
+  Description: AWS CloudFormation Examples by AlNao - 01 BucketS3
+  # questa è una riga di commento, nota: AWSTemplateFormatVersion e Description sono obbligatori
+  # see documentation https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
+
+  # blocco Parametri
+  Parameters:
+    NomeBucket:
+      Type: String
+      Default: esempio01-bucket-s3
+      Description: Nome del bucket
+      MinLength: 9
+  # blocco Risorse, questo è l'unico blocco obbligatorio
+  Resources:
+    S3Bucket:
+      Type: 'AWS::S3::Bucket'
+      Properties:
+        BucketName: !Ref NomeBucket
+  # blocco Outputs
+  Outputs:
+    S3Bucket:
+      Value: !GetAtt S3Bucket.Arn
+      Description: S3 bucket ARN
+
+  ```
+* **Capabilities** vedere la [documentazione](https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html) e sito
+[knowledge-center](https://repost.aws/knowledge-center/cloudformation-objectownership-acl-error):
+  - ```CAPABILITY_IAM``` & ```CAPABILITY_NAMED_IAM``` Some stack templates might include resources that can affect permissions in your AWS account; for example, by creating new AWS Identity and Access Management (IAM) users. For those stacks, you must explicitly acknowledge this by specifying one of these capabilities. The following IAM resources require you to specify either the CAPABILITY_IAM or CAPABILITY_NAMED_IAM capability.
+    - If you have IAM resources, you can specify either capability.
+    - If you have IAM resources with custom names, you must specify CAPABILITY_NAMED_IAM.
+    - If you don't specify either of these capabilities, AWS CloudFormation returns an InsufficientCapabilities error.
+  - ```CAPABILITY_AUTO_EXPAND``` If you want to create a stack from a stack template that contains macros and/or nested stacks, you must create the stack directly from the template using this capability.
+  - In console warning/note: "following resources require capabilities AWS::IAM::Role" and check to confirm.
+	
+* **Psedo-parametri** vedere la [documentazione](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html) :
+	- AWS::AccountId
+	- AWS::Region
+	- AWS::StackId
+	- AWS::StackName
+	- AWS::NotificationARNs
+	- AWS::NoValue
+  Esempio di utilizzo nel output
+  ```
+  StackName:
+    Description: Deployed StackName for update
+    Value: !Ref AWS::StackName
+  ```
+* **Mapping** necessita di una sezione dedicata oltre a le tre nell'esempio sopra (*fixed variables in template*) 
+  ```
+  Mappings:
+    EnvInstance:
+      dev:
+        EC2Type: t2.micro
+      prod:
+        EC2Type: t2.small
+  ...
+      InstanceType: !FindInMap [EnvInstance, !Ref 'EnvName', EC2Type]
+  ```
+  vedere esempio 05 per un template completo.
+* **Conditions** definire logiche all'interno di template, sezione dedicata:
+  ```
+  Conditions:
+    CreateVolume: !Equals [!Ref EnvName, prod]
+  ...
+  Resources:
+    MountPoint:
+      Type: AWS::EC2::VolumeAttachment
+      Condition: CreateProd
+  ```
+  vedere esempio 05 per un template completo.
+* **Intrinsic Functions** vedere la [documentazione](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html):
+	- !Ref: get a refefence to parametar or resources (ID):
+      ```
+      Parameters:
+        NomeBucket:
+        Type: String
+        Default: esempio01-bucket-s3
+      Resources:
+        S3Bucket:
+        Type: 'AWS::S3::Bucket'
+        Properties:
+          BucketName: !Ref NomeBucket
+      ```
+	- Fn::GetAtt (get AZ of an EC2 instance):
+      ```
+      Outputs:
+        WebsiteURL:
+        Value: !GetAtt S3Bucket.WebsiteURL
+        Description: URL for website hosted on S3
+      ```
+	- Fn::FindInMap
+	- Fn::ImportValue: import valules that are expored in other stack
+	- Fn::Base64: convert string to base64 rappresentation, example to pass encoded data to EC2 user-data property:
+      ```
+      UserData: !Base64
+        Fn::Join:
+        - ''
+        - - |
+      ```
+	- Fn::Join
+	- Fn::Sub
+	- Fn::ForEach
+	- Fn::ToJsonString
+	- Fn::If, Fn::Not, Fn::Equals ... 
+	- others 
 
 
 # AlNao.it

@@ -1,4 +1,4 @@
-# AWS Examples - 02 Istanze EC2
+# AWS CloudFormation Examples by AlNao - 02 Istanze EC2
 
 ## CloudFormation
 Documentazione [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-instance.html) di Ec2:
@@ -145,6 +145,13 @@ La CLI mette a disposizione una serie di comandi per la gestione dei SecurityGro
 ## Esempi di user-data
 Riferimento documentazione ufficiale [user data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html).
 
+I log delle esecuzioni delle script sono disponibili nel file:
+```
+/var/log/cloud-init-output.log
+```
+
+Se viene creato con CloudFormation bisogna definire lo script con la funzione ```FN:Base64```.
+
 * Esempio di installazione apache e mysql 
     ```
     #!/bin/bash
@@ -160,7 +167,7 @@ Riferimento documentazione ufficiale [user data](https://docs.aws.amazon.com/AWS
     find /var/www -type f -exec chmod 0664 {} \;
     echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
     ```
-* Comando cli: attraverso la CLI è possibile avviare istanze con uno specifico script salvato in un file:
+* Con la CLI è possibile avviare istanze con uno specifico script salvato in un file:
     ```
     aws ec2 run-instances --image-id ami-xxxx --count 1 --instance-type m3.medium --key-name xxxx --subnet-id subnet-xxxx --security-group-ids sg-xxxx 
     --user-data file://my_script.txt
