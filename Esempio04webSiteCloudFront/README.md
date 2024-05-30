@@ -1,34 +1,57 @@
-# Esempio07cloudFront
-Esempio di template CloudFormation per esporre un sito con CloudFront 
+# AWS CloudFormation Examples by AlNao - 04 Distribuzione CloudFront con WebSite su S3
+
+Creazione di una distribuzione CloudFront con un sito su S3. Template eseguibile in Console Web di AWS oppure tramite i comandi CLI-SAM.
 
 
-AWS CloudFormation Examples - vedere i prerequisiti nel README generale
-
-## Comandi per la creazione
-
+## CloudFormation
+Documentazione di [CloudFront](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cloudfront-distribution.html)
 ```
-sam validate --lint
-sam build
-sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
-sam deploy --template-file packagedV1.yaml --stack-name Esempio07cloudFront
+  "Type" : "AWS::CloudFront::Distribution",
 ```
+* Comandi per la creazione:
+    ```
+    sam validate --lint
+    sam build
+    sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket formazione-alberto
+    sam deploy --template-file packagedV1.yaml --stack-name Esempio04cloudFront
+    ```
+* Comandi per il carico della pagina con invalidazione della distribuzione con aggiornamento della cache
+    ```
+    aws s3 cp index.html s3://alberto-es04-sito/
+    aws s3 ls s3://alberto-es04-sito/
+    ```
+* Comandi per il carico della pagina con invalidazione della distribuzione con aggiornamento della cache
+    ```
+    aws cloudfront create-invalidation --distribution-id E14O91R4KXQZLB --paths "/*"
+    ```
+* Comandi per la rimozione dello stack
+    ```
+    aws s3 rm s3://alberto-es04-sito/index.html
+    aws s3 ls s3://alberto-es04-sito/
+    sam delete --stack-name Esempio04cloudFront
+    ```
 
-
-## Comandi per caricare la pagina
-```
-aws s3 cp index.html s3://alberto-sito/
-aws s3 ls s3://alberto-sito/
-aws cloudfront create-invalidation --distribution-id xxxxx --paths "/*"
-```
-
-
-## Comandi per la rimozione
-```
-aws s3 rm s3://alberto-sito/index.html
-aws s3 ls s3://alberto-sito/
-sam delete --stack-name Esempio07cloudFront
-
-```
+## Comandi CLI
+* Documentazione [CLI](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudfront/index.html)
+* Lista delle distribuzioni
+  ```
+  aws cloudfront list-distributions
+  aws cloudfront list-distributions --query "DistributionList.Items[*].[Id, DomainName, Origins.Items[0].DomainName]" --output table
+  ```
+* Creare e distruggere una distribuazione
+  ```
+  aws cloudfront create-distribution --distribution-config <value>
+  aws cloudfront update-distribution[--distribution-config <value>] --id <value>
+  aws cloudfront delete-distribution --id <value>
+  ```
+* Dettaglio di una distribuzione
+  ```
+  aws cloudfront get-distribution --id E14O91R4KXQZLB
+  ```
+* Invalidazione di una distribuzione 
+  ```
+  aws cloudfront create-invalidation --distribution-id E14O91R4KXQZLB --paths "/*"
+  ```
 
 
 # AlNao.it

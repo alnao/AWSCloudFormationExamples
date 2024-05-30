@@ -6,6 +6,9 @@ Description: AWS CloudFormation Examples by AlNao - 02 Istanze EC2
 # e il comando cfn-signal per la conferma a CloudFormation che l'istanza è correttamente avviata.
 
 Parameters:
+  RegionAZ:
+    Type: String
+    Default: eu-west-1b
   SubnetId:
     Description: 'Please choose a Subnet Id'
     Type: AWS::EC2::Subnet::Id
@@ -43,7 +46,28 @@ Parameters:
   LatestAmiId:
     Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  EnvName:
+    Type: String
+    AllowedValues: [dev,prod]
+    Default: dev
+Conditions:
+  CreateVolume: !Equals [!Ref EnvName, prod]
+
 Resources:
+  VolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Condition: CreateVolume
+    Properties:
+      InstanceId: !Ref EC2Instance
+      VolumeId: !Ref Volume
+      Device: /dev/sdh
+  Volume:
+    Type: AWS::EC2::Volume
+    Condition: CreateVolume
+    Properties:
+      Size: 10
+      AvailabilityZone: !Ref RegionAZ #!GetAtt Instance.AvailabilityZone
+
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:

@@ -40,20 +40,40 @@ Documentazione [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/la
     ```
     sam validate
     sam build
-    sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket alberto-input
+    sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket formazione-alberto
     sam deploy --template-file .\packagedV1.yaml --stack-name Esempio02istanzeEC2 --parameter-overrides KeyName=xxxx VpcId=vpc-xxxx SubnetId=subnet-xxx
+    ```
+
+* Comandi per la creazione con il parametro "Prod" per la gestione della "condition" che crea volumi aggiuntivi:
+    ```
+    sam deploy --template-file .\packagedV1.yaml --stack-name Esempio02istanzeEC2 --parameter-overrides KeyName=xxx VpcId=vpc-xxx SubnetId=subnet-xxx EnvName=prod
     ```
 * Comandi per verifica della istanza:
     ```
-    ssh ec2-user@3.254.73.131 -i /C/Transito/000_FILES/Keys/20230116_Formazione/AlbertoNaoFormazione.pem
+    ssh ec2-user@xxx.xxx.xxx.xxx   -i keyyyyyyy.pem
     curl localhost
     sudo cat /var/log/cloud-init-output.log
     sudo cat /var/log/cfn-init.log
     sudo cat /var/log/cloud-init.log
     ```
-* Comandi per la rimozione:
+* Comandi per la rimozione di uno stack:
     ```
     sam delete --stack-name Esempio02istanzeEC2
+    ```
+* Comandi per il mount del volume EBS Enelle EC2, vedere la [documentazione](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-using-volumes.html)e [esempi pratici](https://www.cyberciti.biz/faq/how-to-install-xfs-and-create-xfs-file-system-on-debianubuntu-linux/): 
+    ```
+    sudo lsblk
+    sudo file -s /dev/xvdh
+    sudo yum install xfsprogs
+    sudo modprobe -v xfs
+    grep xfs /proc/filesystems
+    sudo fdisk /dev/xvdh
+        > m (to create partition)
+        > w (to write partitions)
+    sudo mkfs.xfs /dev/xvdh1	
+    sudo mkdir /data
+    sudo mount /dev/xvdh1 /data
+    cd /data
     ```
 
 ## Comandi CLI

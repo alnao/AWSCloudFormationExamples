@@ -31,10 +31,9 @@ AWS Examples by [AlNao](https://www.alnao.it/aws)
 - 01 **Bucket S3**: creazione e gestione di un bucket S3
 - 02 **Istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
 - 03 **WebSite con S3**: bucket S3 pubblicamente accessibile con un hosted-website (senza CloudFront)
+- 04 **WebSite con CloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
 
 ## Esempi in fase di revisione
-- 04 **WebSite con CloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
-- 05 **Conditions**: istanza EC2 con creazione di volumi condizionata da un parametro di ambiente (dev/prov)
 - 06 **Parametri SSM**: uso del template 02 *istanze EC2* ma con un parametro custom recuperato dal servizio SSM
 - 07 **Lambda**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge)
 - 08 **EventBridge**: due regole EventBridge (trigger & cron) per l'invocazioni di Lambda Function 
@@ -129,7 +128,7 @@ Facendo riferimento alla [documentazione ufficiale](https://docs.aws.amazon.com/
       Type: AWS::EC2::VolumeAttachment
       Condition: CreateProd
   ```
-  vedere esempio 05 per un template completo.
+  vedere esempio 02 per un template completo con la creazione di un EBS condizionato da un parametro.
 * **Intrinsic Functions** vedere la [documentazione](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html):
 	- !Ref: get a refefence to parametar or resources (ID):
       ```
