@@ -3,7 +3,6 @@ Description: AWS CloudFormation Examples by AlNao - 02 Istanze EC2
 # SEE https://github.com/awslabs/aws-cloudformation-templates/blob/master/aws/services/EC2/EC2InstanceWithSecurityGroupSample.yaml
 # con in aggiunta la configurazione di rete su una VPC e una Subnet specifica (questo esempio non funziona nella VPC di default).
 # In questo esempio presente anche uno script user-data per la creazione di un web-server con una pagina di prova
-# e il comando cfn-signal per la conferma a CloudFormation che l'istanza è correttamente avviata.
 
 Parameters:
   RegionAZ:
@@ -50,8 +49,14 @@ Parameters:
     Type: String
     AllowedValues: [dev,prod]
     Default: dev
+  WithMetadata:
+    Type: String
+    AllowedValues: [true,false]
+    Default: false
 Conditions:
   CreateVolume: !Equals [!Ref EnvName, prod]
+  WithMetadata: !Equals [!Ref WithMetadata, true]
+  WithoutMetadata: !Equals [!Ref WithMetadata, false]
 
 Resources:
   VolumeAttachment:
@@ -70,6 +75,7 @@ Resources:
 
   EC2Instance:
     Type: AWS::EC2::Instance
+    Condition: WithoutMetadata
     Properties:
       InstanceType: !Ref 'InstanceType'
       #https://stackoverflow.com/questions/56481328/aws-cloudformation-error-with-security-groups-and-network-interfaces-invalid-pa
@@ -86,36 +92,18 @@ Resources:
         AssociatePublicIpAddress: true
         DeviceIndex: '0'
         DeleteOnTermination: true
-      UserData: !Base64 
-        'Fn::Join':
-          - ''
-          - - |
-              #!/bin/bash -xe
-            - |
-              yum update -y aws-cfn-bootstrap
-            # nota: non cancellare questa riga vuota che serve per andare a capo nel user-data
-            - |+
+      UserData: 
+        Fn::Base64: |
+          #!/bin/bash -xe
+          sudo yum -y install httpd
+          sudo yum update -y aws-cfn-bootstrap
+          sudo yum install -y amazon-efs-utils
+          echo "Site from $(hostname -f)" > /var/www/html/index.html 
+          sudo systemctl enable httpd
+          sudo systemctl start httpd
+          #sudo /opt/aws/bin/cfn-signal -e $? 
+          #/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource MyInstance --region ${AWS::Region}
 
-            - |
-              sudo yum install -y amazon-efs-utils
-            # nota: non cancellare questa riga vuota che serve per andare a capo nel user-data
-            - |+
-             
-            - |
-              sudo yum install -y httpd
-              echo "Site from $(hostname -f)" > /var/www/html/index.html 
-              service httpd start 
-            - |+ #nota: grep -ni 'error\|failure' $(sudo find /var/log -name cfn-init\* -or -name cloud-init\*)
-
-            - 'sudo /opt/aws/bin/cfn-signal -e $? '
-            - '         --stack '
-            - !Ref 'AWS::StackName'
-            - '         --resource EC2Instance ' #nota EC2Instance corrisponde al nome del yaml
-            - '         --region '
-            - !Ref 'AWS::Region'
-            - |+ #nota: grep -ni 'error\|failure' $(sudo find /var/log -name cfn-init\* -or -name cloud-init\*)
-
-# nota: non cancellare la riga vuota sopra
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -131,19 +119,40 @@ Resources:
         IpProtocol: TCP
         FromPort: 80
         ToPort: 80
+
+  EC2InstanceWithMetadata:
+    Type: AWS::CloudFormation::Stack
+    Condition: WithMetadata
+    Properties:
+      TemplateURL: "./cfn_helper_scripts.yaml"
+      Parameters:
+        SubnetId: !Ref SubnetId
+        VpcId: !Ref VpcId
+        KeyName: !Ref KeyName
+        InstanceType: !Ref InstanceType
+        SSHLocation: !Ref SSHLocation
+        #LatestAmiId: !Ref LatestAmiId
+        InstanceSecurityGroup: !Ref InstanceSecurityGroup
+
 Outputs:
-  InstanceId:
-    Description: InstanceId of the newly created EC2 instance
-    Value: !Ref 'EC2Instance'
-  AZ:
-    Description: Availability Zone of the newly created EC2 instance
-    Value: !GetAtt [EC2Instance, AvailabilityZone]
-  PublicDNS:
-    Description: Public DNSName of the newly created EC2 instance
-    Value: !GetAtt [EC2Instance, PublicDnsName]
-  PublicIP:
-    Description: Public IP address of the newly created EC2 instance
-    Value: !GetAtt [EC2Instance, PublicIp]
   StackName:
     Description: Deployed StackName for update
     Value: !Ref AWS::StackName
+#WithoutMetadata
+  PublicDNS:
+    Description: Public DNSName of the newly created EC2 instance
+    Condition: WithoutMetadata
+    Value: !GetAtt [EC2Instance, PublicDnsName]
+  PublicIP:
+    Description: Public IP address of the newly created EC2 instance
+    Condition: WithoutMetadata
+    Value: !GetAtt [EC2Instance, PublicIp]
+#WithMetadata    
+  PublicDNSWithMetadata:
+    Description: Public DNSName of the newly created EC2 instance
+    Condition: WithMetadata
+    Value: !GetAtt EC2InstanceWithMetadata.Outputs.PublicDNS
+  PublicIPWithMetadata:
+    Description: Public IP address of the newly created EC2 instance
+    Condition: WithMetadata
+    Value: !GetAtt EC2InstanceWithMetadata.Outputs.PublicIP

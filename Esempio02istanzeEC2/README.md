@@ -44,10 +44,19 @@ Documentazione [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/la
     sam deploy --template-file .\packagedV1.yaml --stack-name Esempio02istanzeEC2 --parameter-overrides KeyName=xxxx VpcId=vpc-xxxx SubnetId=subnet-xxx
     ```
 
-* Comandi per la creazione con il parametro "Prod" per la gestione della "condition" che crea volumi aggiuntivi:
+* Comando per la creazione con il parametro "Prod" per la gestione della "condition" che crea volumi aggiuntivi:
     ```
     sam deploy --template-file .\packagedV1.yaml --stack-name Esempio02istanzeEC2 --parameter-overrides KeyName=xxx VpcId=vpc-xxx SubnetId=subnet-xxx EnvName=prod
     ```
+
+* Comando per la creazione con il *parametro "Metadata"* valorizzato per creare la versione dedicata con CloudFormation helper scripts
+    Vedere sezione dedicata per tutti i dettagli, il comando di pacakge in questo caso è necessario perchè lo stack è annidato!
+    ```
+    sam build
+    sam package --output-template-file packagedV1.yaml --s3-prefix REPOSITORY --s3-bucket formazione-alberto
+    sam deploy --template-file .\packagedV1.yaml --stack-name Esempio02istanzeEC2 --parameter-overrides KeyName=xxx VpcId=vpc-xxx SubnetId=subnet-xxx WithMetadata=true 
+    ```
+    
 * Comandi per verifica della istanza:
     ```
     ssh ec2-user@xxx.xxx.xxx.xxx   -i keyyyyyyy.pem
@@ -55,11 +64,14 @@ Documentazione [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/la
     sudo cat /var/log/cloud-init-output.log
     sudo cat /var/log/cfn-init.log
     sudo cat /var/log/cloud-init.log
+    sudo cat /tmp/test.txt
     ```
+
 * Comandi per la rimozione di uno stack:
     ```
     sam delete --stack-name Esempio02istanzeEC2
     ```
+
 * Comandi per il mount del volume EBS Enelle EC2, vedere la [documentazione](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-using-volumes.html)e [esempi pratici](https://www.cyberciti.biz/faq/how-to-install-xfs-and-create-xfs-file-system-on-debianubuntu-linux/): 
     ```
     sudo lsblk
@@ -171,7 +183,18 @@ I log delle esecuzioni delle script sono disponibili nel file:
 ```
 
 Se viene creato con CloudFormation bisogna definire lo script con la funzione ```FN:Base64```.
-
+* Esempio di installazione di solo apache
+    ```
+      UserData: 
+        Fn::Base64: |
+          #!/bin/bash -xe
+          sudo yum -y install httpd
+          sudo yum update -y aws-cfn-bootstrap
+          sudo yum install -y amazon-efs-utils
+          echo "Site from $(hostname -f)" > /var/www/html/index.html 
+          sudo systemctl enable httpd
+          sudo systemctl start httpd
+    ```
 * Esempio di installazione apache e mysql 
     ```
     #!/bin/bash
@@ -196,6 +219,61 @@ Se viene creato con CloudFormation bisogna definire lo script con la funzione ``
     ```
     aws ec2 describe-instance-attribute --instance-id i-xxxx --attribute userData
     ```
+
+## CloudFormation helper scripts
+Vedere la [documentazione ufficiale](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html)
+di **cfn helper scripts** e ```AWS::CloudFormation::Init```: AWS CloudFormation provides the following Python helper scripts that you can use to install software and start services on an Amazon EC2 instance that you create as part of your stack:
+- **cfn-init**: Use to retrieve and interpret resource metadata, install packages, create files, and start services.
+- **cfn-signal**: Use to signal with a CreationPolicy or WaitCondition, so you can synchronize other resources in the stack when the prerequisite resource or application is ready.
+- **cfn-get-metadata**: Use to retrieve metadata for a resource or path to a specific key.
+- **cfn-hup**: Use to check for updates to metadata and execute custom hooks when changes are detected
+
+Esempio di script con user-data e init:
+```
+      UserData: 
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -xe
+            # test command
+            echo "TEST VpcId=${VpcId} SubnetId=${SubnetId} stack=${AWS::StackName} region=${AWS::Region}" > /tmp/test.txt
+            # install aws-cfn-bootstrap
+            sudo yum update -y aws-cfn-bootstrap
+            #EC2Instance must be name of resource
+            sudo /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EC2Instance --region ${AWS::Region}
+            INIT_STATUS=$?
+            # send result back using cfn-signal
+            sudo /opt/aws/bin/cfn-signal -e $INIT_STATUS --stack ${AWS::StackName} --resource SampleWaitCondition --region ${AWS::Region}
+            # exit the script
+            exit $INIT_STATUS            
+          # Alla fine del sub non serve una riga vuota ma meglio mettere un commento!
+    Metadata:
+      Comment: Install a simple Apache HTTP page
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              httpd: []
+          sources: #come esempio di sources poi non usato in questo template
+            /var/www/html/wp: 'http://wordpress.org/latest.tar.gz'
+          files:
+            "/var/www/html/index.html":
+              content: |
+                <h1>Hello World from EC2 instance!</h1>
+                <p>This was created using cfn-init</p>
+                <p>Site from $(hostname -f)</p>
+              mode: '000644'
+          commands:
+            01_echo:
+              command: "echo 'commando1 ok' > comando1.html "
+              cwd: /var/www/html/
+            02_echo:
+              command: "echo 'commando2 ok' > /var/www/html/comando2.html"
+          services:
+            sysvinit:
+              httpd:
+                enabled: 'true'
+                ensureRunning: 'true'
+```
 
 ## Gestione dei metadata
 Come indicato nella documentazione queste informazioni sono disponibili all'interno di una istanza ma chiunque acceda all'istanza può recuperare le informazioni quindi è sconsigliato usare l'usera data per salvare password o altre informazioni critiche che possono essere recuperate con i meta-data. L'elenco completo dei dati disponibili è elencato nel [sito ufficiale](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) ed è presente una [pagina specifica](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-identity-roles.html) che descrive le regole di utilizzo di questa tecnica, in particolare bisogna ricordare che ogni istanza ha un "identity role" in IAM che rappresenta la stessa istanza e quello che può fare, questo definisce la regola di accesso al Instance Metadata Service (IMDS) identificato come tipo di risorsa:

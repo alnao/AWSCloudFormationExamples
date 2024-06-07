@@ -29,7 +29,7 @@ AWS Examples by [AlNao](https://www.alnao.it/aws)
 
 # Lista esempi
 - 01 **Bucket S3**: creazione e gestione di un bucket S3
-- 02 **Istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet)
+- 02 **Istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet), esempio anche con cfn-helper-scripts
 - 03 **WebSite con S3**: bucket S3 pubblicamente accessibile con un hosted-website (senza CloudFront)
 - 04 **WebSite con CloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
 
