@@ -45,10 +45,14 @@ Parameters:
   LatestAmiId:
     Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  #EnvName:
+  #  Type: String
+  #  AllowedValues: [dev,prod]
+  #  Default: dev
   EnvName:
-    Type: String
-    AllowedValues: [dev,prod]
-    Default: dev
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /nao/envName
+
   WithMetadata:
     Type: String
     AllowedValues: [true,false]

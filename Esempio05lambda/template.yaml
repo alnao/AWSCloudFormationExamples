@@ -12,7 +12,7 @@ Parameters:
   BucketName:
     Type: String
     Description: Nome del bucket
-    Default: esempio04s3notifica
+    Default: esempio05lambda
 Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket'

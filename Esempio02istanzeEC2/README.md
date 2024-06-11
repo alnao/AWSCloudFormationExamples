@@ -72,6 +72,11 @@ Documentazione [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/la
     sam delete --stack-name Esempio02istanzeEC2
     ```
 
+* Comando per la creazione del parametro SSM (parameter store)
+    ```
+    aws ssm put-parameter --overwrite --profile default --name "/nao/envName" --type String --value "dev"
+    ```
+
 * Comandi per il mount del volume EBS Enelle EC2, vedere la [documentazione](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-using-volumes.html)e [esempi pratici](https://www.cyberciti.biz/faq/how-to-install-xfs-and-create-xfs-file-system-on-debianubuntu-linux/): 
     ```
     sudo lsblk

@@ -29,13 +29,12 @@ AWS Examples by [AlNao](https://www.alnao.it/aws)
 
 # Lista esempi
 - 01 **Bucket S3**: creazione e gestione di un bucket S3
-- 02 **Istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet), esempio anche con cfn-helper-scripts
+- 02 **Istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet), esempio anche con cfn-helper-scripts e SSM parameter store
 - 03 **WebSite con S3**: bucket S3 pubblicamente accessibile con un hosted-website (senza CloudFront)
 - 04 **WebSite con CloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
 
 ## Esempi in fase di revisione
-- 06 **Parametri SSM**: uso del template 02 *istanze EC2* ma con un parametro custom recuperato dal servizio SSM
-- 07 **Lambda**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge)
+- 05 **Lambda**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge) *questo esempio non segue le best-practices perchè la lambda è inline dentro al template e non in files dedicati*
 - 08 **EventBridge**: due regole EventBridge (trigger & cron) per l'invocazioni di Lambda Function 
 - 09 **Step Function**: definizione di una step function, invocata da un EventBridge-Lambda, i passi eseguiti dalla macchina a stati sono: copia un file, cancellazione del file originale e poi esecuzione di una lambda function
 - 10 **Api Gateway**: creazione di un servizio REST, esposto con Api Gateway e Lambda function come back-end
@@ -53,10 +52,11 @@ AWS Examples by [AlNao](https://www.alnao.it/aws)
 - 23: template che crea una VPC, un RDS MySql e una EC2, nella EC2 viene installato in automatico un Wordpress
 - 25: template che crea un bilanciatore con istanze che eseguono un Wodpress per ciascuna
 - 26: template che crea un bilanciatere tra istanze EC2 che caricano un unico EFS e un unico RDS
+- 99: template vari 
 
 
 # Note su CloudFormation & YAML
-Facendo riferimento alla [documentazione ufficiale](https://docs.aws.amazon.com/cloudformation/), CloudFormation è un servizio Iaac dichiarativo in YAML (anche in JSON *ma meglio non usarlo*). La base della sintassi di CloudFormation in YAML può essere riassunta in questi punti:
+Facendo riferimento alla [documentazione ufficiale](https://docs.aws.amazon.com/cloudformation/), CloudFormation è un servizio **Iaac** dichiarativo in YAML (è possibile usare anche JSON *ma meglio non usarlo*). La base della sintassi di CloudFormation in YAML può essere riassunta in questi punti:
 * **Template di partenza** con le tre sezioni principali (parametri, risorse e output) ma solo risorse è veramente obbligatorio
   ```
   AWSTemplateFormatVersion: 2010-09-09
@@ -165,6 +165,32 @@ Facendo riferimento alla [documentazione ufficiale](https://docs.aws.amazon.com/
 	- Fn::If, Fn::Not, Fn::Equals ... 
 	- others 
 
+* **SSM Parameter store** Vedere la [documentazione ufficiale](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html) del servizio e la [documentazione di cloud formation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html) per lo sviluppo in template di un parametro:
+  ```
+  BasicParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /nao/prova
+      Type: String
+      Value: date
+      Description: SSM Parameter for running date command.
+      AllowedPattern: "^[a-zA-Z]{1,10}$"
+      Tags:
+        Environment: DEV
+  ```
+  Comando CLI per creare o modificare un parametro:
+  ```
+  aws ssm put-parameter --overwrite --profile default --name "/nao/envName" --type String --value "dev"
+  ```
+  Template per recuperare il valore:
+  ```
+  Parameters:
+    EnvName:
+      Type: AWS::SSM::Parameter::Value<String>
+      Default: /nao/envName
+  ...
+    Proprieta=!Ref EnvName
+  ```
 
 # AlNao.it
 Nessun contenuto in questo repository è stato creato con IA o automaticamente, tutto il codice è stato scritto con molta pazienza da Alberto Nao. Se il codice è stato preso da altri siti/progetti è sempre indicata la fonte. Per maggior informazioni visitare il sito [alnao.it](https://www.alnao.it/).
