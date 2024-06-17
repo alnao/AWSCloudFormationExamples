@@ -32,9 +32,9 @@ AWS Examples by [AlNao](https://www.alnao.it/aws)
 - 02 **Istanze EC2**: istanza EC2 con un web-server (compresi user-data, security group, VPC & subnet), esempio anche con cfn-helper-scripts e SSM parameter store
 - 03 **WebSite con S3**: bucket S3 pubblicamente accessibile con un hosted-website (senza CloudFront)
 - 04 **WebSite con CloudFront**: distribuzione CloudFront che espone un sito statico salavto in un bucket S3
+- 05 **Lambda**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge) *questo esempio non segue le best-practices perchè la lambda è inline dentro al template e non in files dedicati, vedere successivi esempi per lambda in files separati*
 
 ## Esempi in fase di revisione
-- 05 **Lambda**: lambda in Python avviato da una "notifica" da un bucket S3 (senza EventBridge) *questo esempio non segue le best-practices perchè la lambda è inline dentro al template e non in files dedicati*
 - 08 **EventBridge**: due regole EventBridge (trigger & cron) per l'invocazioni di Lambda Function 
 - 09 **Step Function**: definizione di una step function, invocata da un EventBridge-Lambda, i passi eseguiti dalla macchina a stati sono: copia un file, cancellazione del file originale e poi esecuzione di una lambda function
 - 10 **Api Gateway**: creazione di un servizio REST, esposto con Api Gateway e Lambda function come back-end

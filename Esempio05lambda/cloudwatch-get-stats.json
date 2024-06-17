@@ -1,0 +1,19 @@
+{
+    "Namespace": "AWS/Lambda",
+    "MetricName": "Invocations",
+    "Dimensions": [
+        {
+            "Name": "FunctionName",
+            "Value": "esempio04-S3Notification-XuE5shURUFvH"
+        },
+        {
+            "Name": "Resource",
+            "Value": "esempio04-S3Notification-XuE5shURUFvH"
+        }
+    ],
+    "StartTime": "2024-06-10T00:00:00",  
+    "EndTime": "2024-06-20T00:00:00",  
+    "Period": 660,  
+    "Statistics": [          "SampleCount"      ],  
+    "Unit": "Count"  
+}
