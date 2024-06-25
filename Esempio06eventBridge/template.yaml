@@ -6,7 +6,7 @@ Parameters:
   SourceBucket:
     Type: String
     Description: Source Bucket 1
-    Default: alberto-input
+    Default: formazione-alberto
   SourcePath:
     Type: String
     Description: Source Path
@@ -14,7 +14,7 @@ Parameters:
   DestBucket:
     Type: String
     Description: Source Bucket 1
-    Default: alberto-input2
+    Default: formazione-applicazione
   DestPath:
     Type: String
     Description: Source Path

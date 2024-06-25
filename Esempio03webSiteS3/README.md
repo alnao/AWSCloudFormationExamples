@@ -43,7 +43,7 @@ Esempio di bucket policy:
     sam build
     sam deploy --stack-name Esempio03webSiteS3 --capabilities CAPABILITY_IAM
     ```
-    nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM, vedere la [documentazione ufficiale](https://repost.aws/knowledge-center/cloudformation-objectownership-acl-error)
+    - nota: il parametro ```--capabilities CAPABILITY_IAM``` è obbligatorio per la gestione delle regole IAM con template CloudFormation, vedere la [documentazione ufficiale](https://repost.aws/knowledge-center/cloudformation-objectownership-acl-error)
 
 * Comando per la creazione con personalizzazione del nome del bucket
     ```

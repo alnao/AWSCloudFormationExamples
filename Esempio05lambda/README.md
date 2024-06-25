@@ -19,7 +19,7 @@ Documentazione di [lambda-function](https://docs.aws.amazon.com/AWSCloudFormatio
     sam build
     sam deploy --stack-name esempio04 --capabilities CAPABILITY_IAM --parameter-overrides BucketName=esempio04s3notifica
     ```
-    *nota: --capabilities CAPABILITY_IAM è obbligatorio per le regole IAM*
+    - nota: il parametro ```--capabilities CAPABILITY_IAM``` è obbligatorio per la gestione delle regole IAM con template CloudFormation, vedere la [documentazione ufficiale](https://repost.aws/knowledge-center/cloudformation-objectownership-acl-error)
 * Comando caricamento file di prova e verifica esecuzione lambda
     ```
     aws s3 cp prova.csv s3://esempio04s3notifica/
